@@ -13,13 +13,13 @@ signal decision_made(was_correct: bool)
 
 @onready var background: ColorRect = $Background
 @onready var phone_frame: Panel = $PhoneFrame
-@onready var message_label: Label = $PhoneFrame/ScreenArea/MessagesArea/MessagesContainer/MessageBubble/MarginContainer/MessageLabel
-@onready var contact_name: Label = $PhoneFrame/ScreenArea/MessageHeader/ContactName
+@onready var message_label: Label = $PhoneFrame/ScreenArea/MessagesArea/MessagesContainer/BubbleRow/MessageBubble/MarginContainer/MessageLabel
+@onready var contact_name: Label = $PhoneFrame/ScreenArea/NavBar/ContactName
 @onready var time_label: Label = $PhoneFrame/ScreenArea/StatusBar/Time
-@onready var time_stamp: Label = $PhoneFrame/ScreenArea/MessagesArea/MessagesContainer/TimeLabel
+@onready var date_label: Label = $PhoneFrame/ScreenArea/MessagesArea/MessagesContainer/DateLabel
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
-@onready var yes_button: Button = $PhoneFrame/ScreenArea/DecisionArea/ButtonsContainer/YesButton
-@onready var no_button: Button = $PhoneFrame/ScreenArea/DecisionArea/ButtonsContainer/NoButton
+@onready var yes_button: Button = $PhoneFrame/ScreenArea/InputBarBg/DecisionCard/Content/ButtonsContainer/YesButton
+@onready var no_button: Button = $PhoneFrame/ScreenArea/InputBarBg/DecisionCard/Content/ButtonsContainer/NoButton
 @onready var result_overlay: Panel = $ResultOverlay
 @onready var result_icon: Label = $ResultOverlay/ResultContent/ResultIcon
 @onready var result_title: Label = $ResultOverlay/ResultContent/ResultTitle
@@ -51,7 +51,7 @@ func _ready() -> void:
 		hour_12 = 12
 	var am_pm = "AM" if time.hour < 12 else "PM"
 	time_label.text = "%d:%02d" % [hour_12, time.minute]
-	time_stamp.text = "%d:%02d %s" % [hour_12, time.minute, am_pm]
+	date_label.text = "Today %d:%02d %s" % [hour_12, time.minute, am_pm]
 	
 	# Connect button signals
 	yes_button.pressed.connect(_on_yes_pressed)
