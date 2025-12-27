@@ -157,12 +157,21 @@ func _on_yes_pressed() -> void:
 	if not _can_dismiss:
 		return
 	
+	# Play button sound
+	if has_node("/root/AudioManager"):
+		AudioManager.play_button_sound()
+	
 	yes_button.disabled = true
 	no_button.disabled = true
 	_showing_result = true
 	
 	# Show failure result
 	_show_result(false)
+	
+	# Play fail sound after short delay
+	await get_tree().create_timer(0.2).timeout
+	if has_node("/root/AudioManager"):
+		AudioManager.play_fail_sound()
 	
 	decision_made.emit(false)
 	print("❌ User fell for the phishing attack!")
@@ -173,12 +182,21 @@ func _on_no_pressed() -> void:
 	if not _can_dismiss:
 		return
 	
+	# Play button sound
+	if has_node("/root/AudioManager"):
+		AudioManager.play_button_sound()
+	
 	yes_button.disabled = true
 	no_button.disabled = true
 	_showing_result = true
 	
 	# Show success result
 	_show_result(true)
+	
+	# Play success sound after short delay
+	await get_tree().create_timer(0.2).timeout
+	if has_node("/root/AudioManager"):
+		AudioManager.play_success_sound()
 	
 	decision_made.emit(true)
 	print("✅ User avoided the phishing attack!")

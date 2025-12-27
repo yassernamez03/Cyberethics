@@ -63,6 +63,10 @@ func show_notification(title: String = "NEW MESSAGE", message: String = "You hav
 	visible = true
 	_is_showing = true
 	
+	# Play notification sound
+	if has_node("/root/AudioManager"):
+		AudioManager.play_notification_sound()
+	
 	_animate_show()
 
 

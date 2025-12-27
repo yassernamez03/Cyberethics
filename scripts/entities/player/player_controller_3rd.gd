@@ -69,6 +69,11 @@ var _is_texting: bool = false  # Currently playing texting animation?
 var _can_move: bool = true  # Can the player move? (disabled during dialogue)
 const TEXTING_TRIGGER_TIME: float = 20.0  # 3 minutes = 180 seconds
 
+# Footstep sound variables
+var _footstep_timer: float = 0.0
+var _footstep_interval: float = 0.25  # Time between footsteps when walking
+var _footstep_sprint_interval: float = 0.3  # Faster when sprinting
+
 # -----------------------------------------------------------------------------
 # LIFECYCLE METHODS
 # -----------------------------------------------------------------------------
@@ -312,6 +317,7 @@ func _physics_process(delta: float) -> void:
 	_apply_gravity(delta)
 	_check_landing()
 	_update_animations()
+	_handle_footsteps(delta)
 	
 	move_and_slide()
 	
@@ -497,3 +503,34 @@ func _apply_gravity(delta: float) -> void:
 func _check_landing() -> void:
 	if is_on_floor() and not _was_on_floor:
 		landed.emit()
+
+
+# -----------------------------------------------------------------------------
+# PRIVATE METHODS - Audio
+# -----------------------------------------------------------------------------
+func _handle_footsteps(delta: float) -> void:
+	"""Play footstep sounds when walking/running on ground."""
+	# Stop walking sound if not on floor
+	if not is_on_floor():
+		_footstep_timer = 0.0
+		if has_node("/root/AudioManager"):
+			AudioManager.stop_walking_sound()
+		return
+	
+	# Check if player is moving
+	var horizontal_velocity := Vector2(velocity.x, velocity.z)
+	var is_moving := horizontal_velocity.length() > 0.5
+	
+	# Stop walking sound if not moving or texting
+	if not is_moving or _is_texting:
+		_footstep_timer = 0.0
+		if has_node("/root/AudioManager"):
+			AudioManager.stop_walking_sound()
+		return
+	
+	# Check if sprinting
+	var is_sprinting := Input.is_action_pressed("sprint")
+	
+	# Play walking sound (with running speed if sprinting)
+	if has_node("/root/AudioManager"):
+		AudioManager.play_walking_sound(is_sprinting)
