@@ -17,9 +17,11 @@ extends Node3D
 var _current_player: CharacterBody3D
 var _phone_screen: CanvasLayer = null
 var _notification_popup: CanvasLayer = null
+var _score_hud: CanvasLayer = null
 
 const PHONE_SCREEN_SCENE := preload("res://scenes/ui/phone_screen.tscn")
 const NOTIFICATION_POPUP_SCENE := preload("res://scenes/ui/notification_popup.tscn")
+const SCORE_HUD_SCENE := preload("res://scenes/ui/score_hud.tscn")
 
 
 func _ready() -> void:
@@ -28,6 +30,9 @@ func _ready() -> void:
 	
 	# Setup phone screen UI
 	_setup_phone_screen()
+	
+	# Setup score HUD
+	_setup_score_hud()
 	
 	# Setup notification popup
 	_setup_notification_popup()
@@ -49,6 +54,16 @@ func _setup_phone_screen() -> void:
 	"""Setup the phone screen UI for text message events."""
 	_phone_screen = PHONE_SCREEN_SCENE.instantiate()
 	add_child(_phone_screen)
+	
+	# Connect decision signal to scoring system
+	if _phone_screen.has_signal("decision_made"):
+		_phone_screen.decision_made.connect(_on_phone_decision_made)
+
+
+func _setup_score_hud() -> void:
+	"""Setup the score HUD display."""
+	_score_hud = SCORE_HUD_SCENE.instantiate()
+	add_child(_score_hud)
 
 
 func _setup_notification_popup() -> void:
@@ -89,6 +104,12 @@ func _on_player_text_received() -> void:
 	if _phone_screen:
 		# Show the phishing message with default content
 		_phone_screen.show_message()
+
+
+func _on_phone_decision_made(was_correct: bool) -> void:
+	"""Handle player's decision on phishing message."""
+	if has_node("/root/GameManager"):
+		GameManager.record_decision(was_correct)
 
 
 func get_player() -> CharacterBody3D:
