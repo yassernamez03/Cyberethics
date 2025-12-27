@@ -66,7 +66,7 @@ var _is_jump_animating: bool = false  # Track if jump animation is playing
 var _game_time: float = 0.0  # Track total game time
 var _texting_triggered: bool = false  # Has the texting event been triggered?
 var _is_texting: bool = false  # Currently playing texting animation?
-const TEXTING_TRIGGER_TIME: float = 180.0  # 3 minutes = 180 seconds
+const TEXTING_TRIGGER_TIME: float = 20.0  # 3 minutes = 180 seconds
 
 # -----------------------------------------------------------------------------
 # LIFECYCLE METHODS
