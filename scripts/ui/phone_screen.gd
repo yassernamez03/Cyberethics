@@ -1,13 +1,15 @@
 # =============================================================================
-# PHONE SCREEN UI - iPhone-style phishing message overlay
+# PHONE SCREEN UI - iPhone-style phishing message with decision
 # =============================================================================
-# Displays an iPhone-style phone screen with phishing message when triggered
+# Displays an iPhone-style phone screen with phishing message
+# User must make a Yes/No decision - teaches about phishing awareness
 # Path: res://scripts/ui/phone_screen.gd
 # =============================================================================
 
 extends CanvasLayer
 
 signal dismissed
+signal decision_made(was_correct: bool)
 
 @onready var background: ColorRect = $Background
 @onready var phone_frame: Panel = $PhoneFrame
@@ -16,8 +18,29 @@ signal dismissed
 @onready var time_label: Label = $PhoneFrame/ScreenArea/StatusBar/Time
 @onready var time_stamp: Label = $PhoneFrame/ScreenArea/MessagesArea/MessagesContainer/TimeLabel
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
+@onready var yes_button: Button = $PhoneFrame/ScreenArea/DecisionArea/ButtonsContainer/YesButton
+@onready var no_button: Button = $PhoneFrame/ScreenArea/DecisionArea/ButtonsContainer/NoButton
+@onready var result_overlay: Panel = $ResultOverlay
+@onready var result_icon: Label = $ResultOverlay/ResultContent/ResultIcon
+@onready var result_title: Label = $ResultOverlay/ResultContent/ResultTitle
+@onready var result_message: Label = $ResultOverlay/ResultContent/ResultMessage
 
 var _can_dismiss: bool = false
+var _showing_result: bool = false
+
+# Sarcastic messages for when user falls for phishing (Moroccan Arabic)
+const FAIL_MESSAGES := [
+	"أُوف… شدّوك فالفخ 😬\nهادي فيشينغ!",
+	"آي آي… تبلعتي الطُّعم 🎣\nرد بالك المرة الجاية!",
+	"هاك شنو دار فيك الرابط 😅\nطاحتي فالفخ.",
+]
+
+# Success messages for avoiding phishing (Moroccan Arabic)
+const SUCCESS_MESSAGES := [
+	"برافو عليك! 🔐\nنْجّيتي راسك من الشفّارة!",
+	"واعر بزاف! 🤝\nما طاحشتيش فالفخ.",
+	"سْمَحْ ليهم 😂\nعينك فايقة وما تضحكوش عليك.",
+]
 
 
 func _ready() -> void:
@@ -30,8 +53,13 @@ func _ready() -> void:
 	time_label.text = "%d:%02d" % [hour_12, time.minute]
 	time_stamp.text = "%d:%02d %s" % [hour_12, time.minute, am_pm]
 	
+	# Connect button signals
+	yes_button.pressed.connect(_on_yes_pressed)
+	no_button.pressed.connect(_on_no_pressed)
+	
 	# Initially hidden
 	visible = false
+	result_overlay.visible = false
 	
 	# Setup animations
 	_setup_animations()
@@ -96,6 +124,12 @@ func show_message(sender: String = "", message: String = "") -> void:
 	if sender != "":
 		contact_name.text = sender
 	
+	# Reset state
+	_showing_result = false
+	result_overlay.visible = false
+	yes_button.disabled = false
+	no_button.disabled = false
+	
 	visible = true
 	_can_dismiss = false
 	
@@ -113,7 +147,76 @@ func show_message(sender: String = "", message: String = "") -> void:
 	await animation_player.animation_finished
 	_can_dismiss = true
 	
-	print("Phone screen displayed - Press SPACE to dismiss")
+	print("📱 Phone screen displayed - Make your choice!")
+
+
+func _on_yes_pressed() -> void:
+	"""User chose YES - they fell for the phishing attack!"""
+	if not _can_dismiss:
+		return
+	
+	yes_button.disabled = true
+	no_button.disabled = true
+	_showing_result = true
+	
+	# Show failure result
+	_show_result(false)
+	
+	decision_made.emit(false)
+	print("❌ User fell for the phishing attack!")
+
+
+func _on_no_pressed() -> void:
+	"""User chose NO - they avoided the phishing attack!"""
+	if not _can_dismiss:
+		return
+	
+	yes_button.disabled = true
+	no_button.disabled = true
+	_showing_result = true
+	
+	# Show success result
+	_show_result(true)
+	
+	decision_made.emit(true)
+	print("✅ User avoided the phishing attack!")
+
+
+func _show_result(success: bool) -> void:
+	"""Show the result overlay with appropriate message."""
+	if success:
+		# Success - avoided phishing
+		result_overlay.add_theme_stylebox_override("panel", _create_success_style())
+		result_icon.text = "🛡️"
+		result_title.text = "GREAT JOB!"
+		result_message.text = SUCCESS_MESSAGES[randi() % SUCCESS_MESSAGES.size()]
+	else:
+		# Failure - fell for phishing
+		result_overlay.add_theme_stylebox_override("panel", _create_fail_style())
+		result_icon.text = "🎣"
+		result_title.text = "OOH GOTCHA!"
+		result_message.text = FAIL_MESSAGES[randi() % FAIL_MESSAGES.size()]
+	
+	# Show result overlay with animation
+	result_overlay.visible = true
+	result_overlay.modulate = Color(1, 1, 1, 0)
+	
+	var tween = create_tween()
+	tween.tween_property(result_overlay, "modulate", Color(1, 1, 1, 1), 0.3)
+
+
+func _create_success_style() -> StyleBoxFlat:
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.1, 0.5, 0.1, 0.98)
+	style.set_corner_radius_all(20)
+	return style
+
+
+func _create_fail_style() -> StyleBoxFlat:
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.6, 0.1, 0.1, 0.98)
+	style.set_corner_radius_all(20)
+	return style
 
 
 func hide_phone() -> void:
@@ -125,9 +228,17 @@ func hide_phone() -> void:
 	
 	# Play hide animation
 	animation_player.play("hide")
+	
+	# Also fade out result overlay if visible
+	if result_overlay.visible:
+		var tween = create_tween()
+		tween.tween_property(result_overlay, "modulate", Color(1, 1, 1, 0), 0.2)
+	
 	await animation_player.animation_finished
 	
 	visible = false
+	result_overlay.visible = false
+	_showing_result = false
 	
 	# Resume the game
 	get_tree().paused = false
@@ -136,16 +247,17 @@ func hide_phone() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	
 	dismissed.emit()
-	print("Phone dismissed - Resuming gameplay")
+	print("📱 Phone dismissed - Resuming gameplay")
 
 
 func _input(event: InputEvent) -> void:
 	if not visible or not _can_dismiss:
 		return
 	
-	# Only dismiss on F key
-	if event is InputEventKey and event.pressed and event.keycode == KEY_F:
-		hide_phone()
+	# Only allow dismissing with F key AFTER showing result
+	if _showing_result:
+		if event is InputEventKey and event.pressed and event.keycode == KEY_F:
+			hide_phone()
 
 
 func _unhandled_input(event: InputEvent) -> void:

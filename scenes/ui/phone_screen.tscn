@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://phone_screen_ui"]
+[gd_scene load_steps=12 format=3 uid="uid://phone_screen_ui"]
 
 [ext_resource type="Script" path="res://scripts/ui/phone_screen.gd" id="1_script"]
 
@@ -37,6 +37,34 @@ corner_radius_bottom = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_header"]
 bg_color = Color(0.97, 0.97, 0.98, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yes_btn"]
+bg_color = Color(0.2, 0.6, 0.2, 1)
+corner_radius_left = 12
+corner_radius_top = 12
+corner_radius_right = 12
+corner_radius_bottom = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_no_btn"]
+bg_color = Color(0.8, 0.2, 0.2, 1)
+corner_radius_left = 12
+corner_radius_top = 12
+corner_radius_right = 12
+corner_radius_bottom = 12
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_result_success"]
+bg_color = Color(0.1, 0.5, 0.1, 0.95)
+corner_radius_left = 20
+corner_radius_top = 20
+corner_radius_right = 20
+corner_radius_bottom = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_result_fail"]
+bg_color = Color(0.6, 0.1, 0.1, 0.95)
+corner_radius_left = 20
+corner_radius_top = 20
+corner_radius_right = 20
+corner_radius_bottom = 20
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_inputbar"]
 bg_color = Color(0.95, 0.95, 0.96, 1)
@@ -219,7 +247,7 @@ anchor_bottom = 1.0
 offset_left = 10.0
 offset_top = 140.0
 offset_right = -10.0
-offset_bottom = -100.0
+offset_bottom = -140.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -265,10 +293,12 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 14
 text = "السلام عليكم ، ربحتي معانا فمسابقة 20 مليون ، رسلينا المعلومات البنكية ديالك كاملة باش تأكد الاستلام :
+
 الاسم و النسب
 رقم البطاقة البنكية
 تاريخ انتهاء الصلاحية
 الرقم المكتوب على ظهر البطاقة
+
 او يمكن ليك ترسل صورة البطاقة امام و الخلف"
 autowrap_mode = 2
 horizontal_alignment = 2
@@ -280,56 +310,51 @@ theme_override_font_sizes/font_size = 10
 text = "Delivered"
 horizontal_alignment = 0
 
-[node name="InputArea" type="Panel" parent="PhoneFrame/ScreenArea"]
+[node name="DecisionArea" type="VBoxContainer" parent="PhoneFrame/ScreenArea"]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = -90.0
-offset_right = -10.0
-offset_bottom = -50.0
+offset_left = 15.0
+offset_top = -130.0
+offset_right = -15.0
+offset_bottom = -45.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_styles/panel = SubResource("StyleBoxFlat_inputbar")
+theme_override_constants/separation = 10
 
-[node name="InputContent" type="HBoxContainer" parent="PhoneFrame/ScreenArea/InputArea"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 5.0
-offset_right = -10.0
-offset_bottom = -5.0
-
-[node name="CameraIcon" type="Label" parent="PhoneFrame/ScreenArea/InputArea/InputContent"]
+[node name="QuestionLabel" type="Label" parent="PhoneFrame/ScreenArea/DecisionArea"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
-theme_override_font_sizes/font_size = 20
-text = "📷"
-vertical_alignment = 1
+theme_override_colors/font_color = Color(0.3, 0.3, 0.3, 1)
+theme_override_font_sizes/font_size = 13
+text = "Will you send your bank information?"
+horizontal_alignment = 1
 
-[node name="AppsIcon" type="Label" parent="PhoneFrame/ScreenArea/InputArea/InputContent"]
+[node name="ButtonsContainer" type="HBoxContainer" parent="PhoneFrame/ScreenArea/DecisionArea"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
-theme_override_font_sizes/font_size = 18
-text = "⊕"
-vertical_alignment = 1
+theme_override_constants/separation = 20
+alignment = 1
 
-[node name="InputField" type="LineEdit" parent="PhoneFrame/ScreenArea/InputArea/InputContent"]
+[node name="YesButton" type="Button" parent="PhoneFrame/ScreenArea/DecisionArea/ButtonsContainer"]
+custom_minimum_size = Vector2(120, 45)
 layout_mode = 2
-size_flags_horizontal = 3
-placeholder_text = "Text Message"
-editable = false
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_yes_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_yes_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_yes_btn")
+text = "✓ YES"
 
-[node name="MicIcon" type="Label" parent="PhoneFrame/ScreenArea/InputArea/InputContent"]
+[node name="NoButton" type="Button" parent="PhoneFrame/ScreenArea/DecisionArea/ButtonsContainer"]
+custom_minimum_size = Vector2(120, 45)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
-theme_override_font_sizes/font_size = 18
-text = "🎤"
-vertical_alignment = 1
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_no_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_no_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_no_btn")
+text = "✗ NO"
 
 [node name="HomeIndicator" type="ColorRect" parent="PhoneFrame/ScreenArea"]
 layout_mode = 1
@@ -346,19 +371,59 @@ grow_horizontal = 2
 grow_vertical = 0
 color = Color(0, 0, 0, 1)
 
-[node name="DismissHint" type="Label" parent="."]
-anchors_preset = 7
+[node name="ResultOverlay" type="Panel" parent="."]
+visible = false
+anchors_preset = 8
 anchor_left = 0.5
-anchor_top = 1.0
+anchor_top = 0.5
 anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -150.0
-offset_top = -35.0
-offset_right = 150.0
-offset_bottom = -10.0
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = 150.0
 grow_horizontal = 2
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_result_success")
+
+[node name="ResultContent" type="VBoxContainer" parent="ResultOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+theme_override_constants/separation = 15
+alignment = 1
+
+[node name="ResultIcon" type="Label" parent="ResultOverlay/ResultContent"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "🛡️"
+horizontal_alignment = 1
+
+[node name="ResultTitle" type="Label" parent="ResultOverlay/ResultContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 22
+text = "GREAT JOB!"
+horizontal_alignment = 1
+
+[node name="ResultMessage" type="Label" parent="ResultOverlay/ResultContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "You successfully avoided the phishing attack!
+
+Never share your bank details with strangers."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="ContinueHint" type="Label" parent="ResultOverlay/ResultContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
 theme_override_font_sizes/font_size = 12
 text = "Press F to continue..."
 horizontal_alignment = 1
