@@ -1,8 +1,9 @@
-[gd_scene load_steps=31 format=3 uid="uid://brv7wf8atuafk"]
+[gd_scene load_steps=34 format=3 uid="uid://brv7wf8atuafk"]
 
 [ext_resource type="Script" uid="uid://b1yfhtuw4atn1" path="res://scripts/levels/modern_city.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://dlr5ya5r6oanl" path="res://scenes/entities/player/player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="3_pause"]
+[ext_resource type="PackedScene" uid="uid://npc_character" path="res://scenes/entities/npc/npc.tscn" id="4_npc"]
 [ext_resource type="PackedScene" uid="uid://dciftmxevk64p" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-a.glb" id="b_a"]
 [ext_resource type="PackedScene" uid="uid://br7i14mhke1d3" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-b.glb" id="b_b"]
 [ext_resource type="PackedScene" uid="uid://78tjgroj86hn" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-c.glb" id="b_c"]
@@ -53,6 +54,14 @@ size = Vector2(14, 200)
 
 [sub_resource type="BoxShape3D" id="EntranceTriggerShape"]
 size = Vector3(8, 5, 4)
+
+[sub_resource type="NavigationMesh" id="NavigationMesh_1"]
+vertices = PackedVector3Array(-95, 0.1, -95, -95, 0.1, 95, 95, 0.1, 95, 95, 0.1, -95)
+polygons = [PackedInt32Array(0, 1, 2, 3)]
+agent_radius = 0.5
+agent_height = 2.0
+agent_max_climb = 0.5
+agent_max_slope = 45.0
 
 [node name="ModernCity" type="Node3D"]
 script = ExtResource("1_script")
@@ -215,6 +224,46 @@ transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -80, 0, 60)
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 80, 0, 60)
 
 [node name="Entities" type="Node3D" parent="."]
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
+navigation_mesh = SubResource("NavigationMesh_1")
+
+[node name="NPCs" type="Node3D" parent="."]
+
+[node name="NPC1" parent="NPCs" instance=ExtResource("4_npc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 15)
+npc_name = "Officer Sarah"
+lesson_type = 0
+walk_speed = 2.5
+wander_radius = 25.0
+
+[node name="NPC2" parent="NPCs" instance=ExtResource("4_npc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 10)
+npc_name = "Tech Expert Mike"
+lesson_type = 1
+walk_speed = 2.0
+wander_radius = 20.0
+
+[node name="NPC3" parent="NPCs" instance=ExtResource("4_npc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0, -15)
+npc_name = "Agent Thompson"
+lesson_type = 2
+walk_speed = 3.0
+wander_radius = 30.0
+
+[node name="NPC4" parent="NPCs" instance=ExtResource("4_npc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35, 0, -20)
+npc_name = "Security Analyst Lisa"
+lesson_type = 3
+walk_speed = 2.2
+wander_radius = 22.0
+
+[node name="NPC5" parent="NPCs" instance=ExtResource("4_npc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 40)
+npc_name = "Network Guard James"
+lesson_type = 4
+walk_speed = 2.8
+wander_radius = 28.0
 
 [node name="SpawnPoint" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 10)

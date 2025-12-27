@@ -14,6 +14,7 @@ extends Node3D
 @onready var spawn_point: Marker3D = $SpawnPoint
 @onready var entities: Node3D = $Entities
 @onready var buildings: Node3D = $Buildings
+@onready var navigation_region: NavigationRegion3D = $NavigationRegion3D
 
 var _current_player: CharacterBody3D
 var _player_in_entrance_zone: bool = false
@@ -21,10 +22,13 @@ var _current_entrance: Area3D = null
 var _phone_screen: CanvasLayer = null
 var _notification_popup: CanvasLayer = null
 var _score_hud: CanvasLayer = null
+var _dialogue_ui: CanvasLayer = null
+var _current_dialogue_npc: Node3D = null
 
 const PHONE_SCREEN_SCENE := preload("res://scenes/ui/phone_screen.tscn")
 const NOTIFICATION_POPUP_SCENE := preload("res://scenes/ui/notification_popup.tscn")
 const SCORE_HUD_SCENE := preload("res://scenes/ui/score_hud.tscn")
+const DIALOGUE_UI_SCENE := preload("res://scenes/ui/dialogue_ui.tscn")
 
 
 func _ready() -> void:
@@ -34,6 +38,9 @@ func _ready() -> void:
 	# Setup building entrances
 	_setup_building_entrances()
 	
+	# Bake navigation mesh for NPCs
+	_bake_navigation()
+	
 	# Setup phone screen UI
 	_setup_phone_screen()
 	
@@ -42,6 +49,12 @@ func _ready() -> void:
 	
 	# Setup notification popup
 	_setup_notification_popup()
+	
+	# Setup dialogue UI
+	_setup_dialogue_ui()
+	
+	# Connect NPCs to dialogue system
+	_connect_npcs()
 	
 	if spawn_player_on_ready:
 		await get_tree().physics_frame
@@ -86,6 +99,57 @@ func _setup_notification_popup() -> void:
 			"You have unread messages waiting...",
 			"Press [T] to open phone"
 		)
+
+
+func _setup_dialogue_ui() -> void:
+	"""Setup the dialogue UI for NPC conversations."""
+	_dialogue_ui = DIALOGUE_UI_SCENE.instantiate()
+	add_child(_dialogue_ui)
+	
+	# Connect dialogue finished signal
+	if _dialogue_ui.has_signal("dialogue_finished"):
+		_dialogue_ui.dialogue_finished.connect(_on_dialogue_completed)
+
+
+func _connect_npcs() -> void:
+	"""Connect all NPCs to the dialogue system."""
+	# Find all NPCs in the Entities node
+	for child in entities.get_children():
+		if child.has_signal("interaction_requested"):
+			child.interaction_requested.connect(_on_npc_interaction_requested)
+			print("[ModernCity] Connected NPC: ", child.name)
+	
+	# Also check NPCs node if it exists
+	var npcs_node = get_node_or_null("NPCs")
+	if npcs_node:
+		for child in npcs_node.get_children():
+			if child.has_signal("interaction_requested"):
+				child.interaction_requested.connect(_on_npc_interaction_requested)
+				print("[ModernCity] Connected NPC: ", child.name)
+
+
+func _on_npc_interaction_requested(npc: Node3D) -> void:
+	"""Handle NPC interaction request - start dialogue."""
+	if _dialogue_ui and npc.has_method("get_dialogue"):
+		_current_dialogue_npc = npc
+		var dialogue = npc.get_dialogue()
+		_dialogue_ui.start_dialogue(dialogue)
+		
+		# Freeze player movement during dialogue
+		if _current_player and _current_player.has_method("set_can_move"):
+			_current_player.set_can_move(false)
+
+
+func _on_dialogue_completed() -> void:
+	"""Handle dialogue completion."""
+	# End dialogue on NPC
+	if _current_dialogue_npc and _current_dialogue_npc.has_method("end_dialogue"):
+		_current_dialogue_npc.end_dialogue()
+	_current_dialogue_npc = null
+	
+	# Unfreeze player movement
+	if _current_player and _current_player.has_method("set_can_move"):
+		_current_player.set_can_move(true)
 
 
 func _input(event: InputEvent) -> void:
@@ -137,6 +201,22 @@ func _setup_building_collision() -> void:
 	for building in buildings.get_children():
 		_add_collision_to_node(building)
 	print("[KenneyCity] Building collisions created")
+
+
+func _bake_navigation() -> void:
+	"""Bake the navigation mesh for NPC pathfinding."""
+	if navigation_region and navigation_region.navigation_mesh:
+		# Create a simple flat navigation mesh for the streets
+		var nav_mesh = NavigationMesh.new()
+		nav_mesh.agent_radius = 0.5
+		nav_mesh.agent_height = 2.0
+		nav_mesh.agent_max_climb = 0.5
+		nav_mesh.agent_max_slope = 45.0
+		
+		# Bake from geometry
+		navigation_region.navigation_mesh = nav_mesh
+		navigation_region.bake_navigation_mesh()
+		print("[ModernCity] Navigation mesh baked for NPCs")
 
 
 func _add_collision_to_node(node: Node) -> void:
