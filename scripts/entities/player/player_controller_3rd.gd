@@ -13,6 +13,7 @@ class_name PlayerController3rd
 # -----------------------------------------------------------------------------
 signal jumped
 signal landed
+signal text_received  # Emitted when player receives a "text message" after 3 min
 
 # -----------------------------------------------------------------------------
 # EXPORTED VARIABLES - Movement
@@ -48,6 +49,7 @@ const WALKING_ANIM_PATH := "res://assets/animations/Walking.fbx"
 const IDLE_ANIM_PATH := "res://assets/animations/Idle.fbx"
 const RUNNING_ANIM_PATH := "res://assets/animations/Running.fbx"
 const JUMPING_ANIM_PATH := "res://assets/animations/Jumping.fbx"
+const TEXTING_ANIM_PATH := "res://assets/animations/Texting While Standing.fbx"
 
 # -----------------------------------------------------------------------------
 # PRIVATE VARIABLES
@@ -61,6 +63,10 @@ var _is_moving: bool = false
 var _is_sprinting: bool = false
 var _skeleton: Skeleton3D = null
 var _is_jump_animating: bool = false  # Track if jump animation is playing
+var _game_time: float = 0.0  # Track total game time
+var _texting_triggered: bool = false  # Has the texting event been triggered?
+var _is_texting: bool = false  # Currently playing texting animation?
+const TEXTING_TRIGGER_TIME: float = 180.0  # 3 minutes = 180 seconds
 
 # -----------------------------------------------------------------------------
 # LIFECYCLE METHODS
@@ -124,6 +130,7 @@ func _load_external_animations() -> void:
 	_load_single_animation(WALKING_ANIM_PATH, "Walking", anim_library)
 	_load_single_animation(RUNNING_ANIM_PATH, "Running", anim_library)
 	_load_single_animation(JUMPING_ANIM_PATH, "Jumping", anim_library, false)  # Don't loop jump
+	_load_single_animation(TEXTING_ANIM_PATH, "Texting", anim_library)  # Texting animation
 	
 	print("All available animations: ", animation_player.get_animation_list())
 
@@ -307,6 +314,25 @@ func _update_animations() -> void:
 	var is_sprinting := Input.is_action_pressed("sprint") and is_moving
 	var is_in_air := not is_on_floor()
 	
+	# Update game time
+	_game_time += get_physics_process_delta_time()
+	
+	# Check if texting should be triggered (after 3 minutes, when idle)
+	if not _texting_triggered and _game_time >= TEXTING_TRIGGER_TIME and not is_moving and not is_in_air:
+		_trigger_texting_event()
+	
+	# If texting animation is playing, let it continue unless player moves
+	if _is_texting:
+		if is_moving or is_in_air:
+			# Player moved - stop texting
+			_is_texting = false
+		else:
+			# Keep texting animation playing
+			var texting_anim = _get_available_animation(["Texting", "texting"])
+			if texting_anim != "" and animation_player.current_animation != texting_anim:
+				animation_player.play(texting_anim)
+			return
+	
 	# Reset jump animation flag when landing
 	if is_on_floor() and _is_jump_animating:
 		_is_jump_animating = false
@@ -359,6 +385,20 @@ func _get_available_animation(names: Array) -> String:
 		if animation_player.has_animation(anim_name):
 			return anim_name
 	return ""
+
+
+func _trigger_texting_event() -> void:
+	_texting_triggered = true
+	_is_texting = true
+	
+	# Play texting animation
+	var texting_anim = _get_available_animation(["Texting", "texting"])
+	if texting_anim != "":
+		animation_player.play(texting_anim)
+		print("📱 Player received a text message! Checking phone...")
+	
+	# Emit signal for UI/game systems to show notification
+	text_received.emit()
 
 
 # -----------------------------------------------------------------------------
