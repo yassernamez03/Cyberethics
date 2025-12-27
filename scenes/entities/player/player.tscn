@@ -1,0 +1,41 @@
+[gd_scene load_steps=5 format=3 uid="uid://dlr5ya5r6oanl"]
+
+[ext_resource type="Script" uid="uid://df7amb534xdqg" path="res://scripts/entities/player/player_controller_3rd.gd" id="1_player"]
+[ext_resource type="Script" uid="uid://cyliytldvan7g" path="res://scripts/systems/health_component.gd" id="2_health"]
+[ext_resource type="PackedScene" uid="uid://bmqoe18loj11t" path="res://assets/models/Avatar/Male.glb" id="3_avatar"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
+radius = 1.2
+height = 5.4
+
+[node name="Player" type="CharacterBody3D"]
+script = ExtResource("1_player")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.7, 0)
+shape = SubResource("CapsuleShape3D_1")
+
+[node name="Avatar" parent="." instance=ExtResource("3_avatar")]
+transform = Transform3D(3, 0, 0, 0, 3, 0, 0, 0, 3, -0.050466537, 3.095351, -0.09005356)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="CameraPivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.5, 0)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot"]
+spring_length = 12.0
+margin = 0.5
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D"]
+current = true
+fov = 70.0
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("2_health")
+
+[node name="Hurtbox" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hurtbox"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.7, 0)
+shape = SubResource("CapsuleShape3D_1")

@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=3 uid="uid://city_level"]
+
+[ext_resource type="Script" path="res://scripts/levels/city_level.gd" id="1_city"]
+[ext_resource type="PackedScene" path="res://assets/models/map_lviv_ukraine.glb" id="2_map"]
+[ext_resource type="PackedScene" path="res://scenes/entities/player/player.tscn" id="3_player"]
+
+[node name="CityLevel" type="Node3D"]
+script = ExtResource("1_city")
+player_scene = ExtResource("3_player")
+
+[node name="Environment" type="Node3D" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+transform = Transform3D(0.866, -0.433, 0.25, 0, 0.5, 0.866, -0.5, -0.75, 0.433, 0, 50, 0)
+light_color = Color(1, 0.95, 0.9, 1)
+light_energy = 1.0
+shadow_enabled = true
+directional_shadow_max_distance = 200.0
+
+[node name="CityMap" parent="." instance=ExtResource("2_map")]
+
+[node name="Entities" type="Node3D" parent="."]
+
+[node name="SpawnPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]

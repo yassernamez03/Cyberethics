@@ -1,0 +1,173 @@
+[gd_scene load_steps=30 format=3 uid="uid://c2063370flbnr"]
+
+[ext_resource type="Script" uid="uid://dgtushyebluue" path="res://scripts/levels/kenney_city.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/entities/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" uid="uid://pause_menu" path="res://scenes/ui/pause_menu.tscn" id="3_pause"]
+[ext_resource type="PackedScene" uid="uid://bnqft5fqudnsr" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-a.glb" id="b_a"]
+[ext_resource type="PackedScene" uid="uid://dwmj2mjkw315c" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-b.glb" id="b_b"]
+[ext_resource type="PackedScene" uid="uid://d1upw2m4eoylj" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-c.glb" id="b_c"]
+[ext_resource type="PackedScene" uid="uid://d1cwdttq5q6cy" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-d.glb" id="b_d"]
+[ext_resource type="PackedScene" uid="uid://5o770xt84rx" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-e.glb" id="b_e"]
+[ext_resource type="PackedScene" uid="uid://r0alv4bgh0g5" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-f.glb" id="b_f"]
+[ext_resource type="PackedScene" uid="uid://b0nfj2tvgpxh3" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-g.glb" id="b_g"]
+[ext_resource type="PackedScene" uid="uid://nnih5bhpw5lx" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-h.glb" id="b_h"]
+[ext_resource type="PackedScene" uid="uid://b6s8aen6570hl" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-i.glb" id="b_i"]
+[ext_resource type="PackedScene" uid="uid://bayty0tgrttt8" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-j.glb" id="b_j"]
+[ext_resource type="PackedScene" uid="uid://dnt5rwrpga1k0" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-k.glb" id="b_k"]
+[ext_resource type="PackedScene" uid="uid://t8un2baqm0xp" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-l.glb" id="b_l"]
+[ext_resource type="PackedScene" uid="uid://ccl4b8fg4spu5" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-m.glb" id="b_m"]
+[ext_resource type="PackedScene" uid="uid://mdpfco2b2y8y" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-n.glb" id="b_n"]
+[ext_resource type="PackedScene" uid="uid://bfhqo4igujxnu" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-o.glb" id="b_o"]
+[ext_resource type="PackedScene" uid="uid://28xmpu5wkjlt" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-p.glb" id="b_p"]
+[ext_resource type="PackedScene" uid="uid://dq6kaq4hfjpxv" path="res://assets/models/kenney_city_industrial/Models/GLB format/chimney-large.glb" id="ch_large"]
+[ext_resource type="PackedScene" uid="uid://bpycxxdovytkb" path="res://assets/models/kenney_city_industrial/Models/GLB format/chimney-medium.glb" id="ch_med"]
+[ext_resource type="PackedScene" uid="uid://b5cde8ni5hylq" path="res://assets/models/kenney_city_industrial/Models/GLB format/detail-tank.glb" id="tank"]
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 2
+sky_custom_fov = 30.0
+ambient_light_source = 2
+ambient_light_color = Color(0.9, 0.95, 1, 1)
+ambient_light_energy = 0.5
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="PlaneMesh" id="GroundMesh"]
+size = Vector2(150, 150)
+
+[sub_resource type="StandardMaterial3D" id="GroundMat"]
+albedo_color = Color(0.35, 0.38, 0.35, 1)
+
+[sub_resource type="BoxShape3D" id="GroundShape"]
+size = Vector3(150, 0.2, 150)
+
+[sub_resource type="PlaneMesh" id="StreetH"]
+size = Vector2(150, 12)
+
+[sub_resource type="StandardMaterial3D" id="StreetMat"]
+albedo_color = Color(0.2, 0.2, 0.22, 1)
+
+[sub_resource type="PlaneMesh" id="StreetV"]
+size = Vector2(12, 150)
+
+[node name="IndustrialCity" type="Node3D"]
+script = ExtResource("1_script")
+player_scene = ExtResource("2_player")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.766, -0.557, 0.321, 0, 0.5, 0.866, -0.643, -0.663, 0.383, 20, 40, 20)
+light_color = Color(1, 0.97, 0.92, 1)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+
+[node name="GroundMesh" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4658966, 0, -0.6988406)
+mesh = SubResource("GroundMesh")
+surface_material_override/0 = SubResource("GroundMat")
+
+[node name="GroundCollision" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("GroundShape")
+
+[node name="Streets" type="Node3D" parent="."]
+
+[node name="MainStreetH" type="MeshInstance3D" parent="Streets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+mesh = SubResource("StreetH")
+surface_material_override/0 = SubResource("StreetMat")
+
+[node name="MainStreetV" type="MeshInstance3D" parent="Streets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+mesh = SubResource("StreetV")
+surface_material_override/0 = SubResource("StreetMat")
+
+[node name="Buildings" type="Node3D" parent="."]
+
+[node name="Block1" type="Node3D" parent="Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35, 0, -35)
+
+[node name="A1" parent="Buildings/Block1" instance=ExtResource("b_a")]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, 14.675781, 0, 20.73246)
+
+[node name="B1" parent="Buildings/Block1" instance=ExtResource("b_b")]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, -24.767052, 0, 19.334766)
+
+[node name="C1" parent="Buildings/Block1" instance=ExtResource("b_c")]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, 13.976944, 0, -26.86359)
+
+[node name="D1" parent="Buildings/Block1" instance=ExtResource("b_d")]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, -17.079727, 0, -18.24448)
+
+[node name="Ch1" parent="Buildings/Block1" instance=ExtResource("ch_large")]
+transform = Transform3D(12, 0, 0, 0, 12, 0, 0, 0, 12, -34.130157, 0, 48.799683)
+
+[node name="Block2" type="Node3D" parent="Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 0, -35)
+
+[node name="E1" parent="Buildings/Block2" instance=ExtResource("b_e")]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, -16.306444, 0, 16.539377)
+
+[node name="F1" parent="Buildings/Block2" instance=ExtResource("b_f")]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, 27.795395, 0, 16.306427)
+
+[node name="G1" parent="Buildings/Block2" instance=ExtResource("b_g")]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, -15.37462, 0, -31.522568)
+
+[node name="H1" parent="Buildings/Block2" instance=ExtResource("b_h")]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, -9.942337, 0, -10.091259)
+
+[node name="Ch2" parent="Buildings/Block2" instance=ExtResource("ch_med")]
+transform = Transform3D(12, 0, 0, 0, 12, 0, 0, 0, 12, -43.441864, 0, 43.208916)
+
+[node name="Block3" type="Node3D" parent="Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -35, 0, 35)
+
+[node name="I1" parent="Buildings/Block3" instance=ExtResource("b_i")]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, 27.487976, 0, -15.60758)
+
+[node name="J1" parent="Buildings/Block3" instance=ExtResource("b_j")]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, 27.413513, 0, 27.022072)
+
+[node name="K1" parent="Buildings/Block3" instance=ExtResource("b_k")]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, 19.800674, 0, 10.091278)
+
+[node name="L1" parent="Buildings/Block3" instance=ExtResource("b_l")]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, -3.3357391, 0, -21.123894)
+
+[node name="Tank1" parent="Buildings/Block3" instance=ExtResource("tank")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -12, 0, 12)
+
+[node name="Tank2" parent="Buildings/Block3" instance=ExtResource("tank")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -18, 0, 12)
+
+[node name="Block4" type="Node3D" parent="Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 35, 0, 35)
+
+[node name="M1" parent="Buildings/Block4" instance=ExtResource("b_m")]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, -18.63594, 0, -17.238228)
+
+[node name="N1" parent="Buildings/Block4" instance=ExtResource("b_n")]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, -13.902466, 0, 23.294888)
+
+[node name="O1" parent="Buildings/Block4" instance=ExtResource("b_o")]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, -16.306412, 0, 4.0345917)
+
+[node name="P1" parent="Buildings/Block4" instance=ExtResource("b_p")]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 15, 6.36409, 0, -24.85107)
+
+[node name="Tank3" parent="Buildings/Block4" instance=ExtResource("tank")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 26.20988, 0, -26.902481)
+
+[node name="Tank4" parent="Buildings/Block4" instance=ExtResource("tank")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 32.209885, 0, -26.902481)
+
+[node name="Entities" type="Node3D" parent="."]
+
+[node name="SpawnPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 8)
+
+[node name="PauseMenu" parent="." instance=ExtResource("3_pause")]

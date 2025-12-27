@@ -1,0 +1,44 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://gqj4mg3ydkb2"
+path.s3tc="res://.godot/imported/Male_fb357570-560f-40e2-b7fc-ca1b61eb9e9d-1744286822785-1745492572022-1752065358820_16.png-ac7241db7e5f5ed4b0222f17e83d03e6.s3tc.ctex"
+metadata={
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
+}
+generator_parameters={
+"md5": "a8ce851d227f6a29fac333e5a91f312d"
+}
+
+[deps]
+
+source_file="res://assets/models/Avatar/Male_fb357570-560f-40e2-b7fc-ca1b61eb9e9d-1744286822785-1745492572022-1752065358820_16.png"
+dest_files=["res://.godot/imported/Male_fb357570-560f-40e2-b7fc-ca1b61eb9e9d-1744286822785-1745492572022-1752065358820_16.png-ac7241db7e5f5ed4b0222f17e83d03e6.s3tc.ctex"]
+
+[params]
+
+compress/mode=2
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/uastc_level=0
+compress/rdo_quality_loss=0.0
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=true
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/channel_remap/red=0
+process/channel_remap/green=1
+process/channel_remap/blue=2
+process/channel_remap/alpha=3
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=0

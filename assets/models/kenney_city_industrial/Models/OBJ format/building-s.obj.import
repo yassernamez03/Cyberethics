@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://s6e5asji6qts"
+path="res://.godot/imported/building-s.obj-e431fa18b0c4fa8460c98db9f0f885be.mesh"
+
+[deps]
+
+files=["res://.godot/imported/building-s.obj-e431fa18b0c4fa8460c98db9f0f885be.mesh"]
+
+source_file="res://assets/models/kenney_city_industrial/Models/OBJ format/building-s.obj"
+dest_files=["res://.godot/imported/building-s.obj-e431fa18b0c4fa8460c98db9f0f885be.mesh", "res://.godot/imported/building-s.obj-e431fa18b0c4fa8460c98db9f0f885be.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

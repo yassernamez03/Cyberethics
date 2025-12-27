@@ -1,0 +1,106 @@
+[gd_scene load_steps=12 format=3 uid="uid://simple_test2"]
+
+[ext_resource type="Script" path="res://scripts/levels/simple_test.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://player2" path="res://scenes/entities/player/player.tscn" id="2_player"]
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 1
+background_color = Color(0.4, 0.6, 0.9, 1)
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 0.5
+tonemap_mode = 2
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_1"]
+size = Vector2(100, 100)
+
+[sub_resource type="StandardMaterial3D" id="GroundMat"]
+albedo_color = Color(0.3, 0.5, 0.3, 1)
+
+[sub_resource type="BoxShape3D" id="GroundShape"]
+size = Vector3(100, 0.2, 100)
+
+[sub_resource type="BoxMesh" id="BoxMesh_Small"]
+size = Vector3(4, 6, 4)
+
+[sub_resource type="StandardMaterial3D" id="BuildingMat1"]
+albedo_color = Color(0.6, 0.6, 0.7, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape_Small"]
+size = Vector3(4, 6, 4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_Large"]
+size = Vector3(6, 10, 5)
+
+[sub_resource type="StandardMaterial3D" id="BuildingMat2"]
+albedo_color = Color(0.7, 0.5, 0.4, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape_Large"]
+size = Vector3(6, 10, 5)
+
+[node name="SimpleTest" type="Node3D"]
+script = ExtResource("1_script")
+player_scene = ExtResource("2_player")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.433, 0.25, 0, 0.5, 0.866, -0.5, -0.75, 0.433, 0, 30, 0)
+light_color = Color(1, 0.95, 0.9, 1)
+light_energy = 1.0
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+
+[node name="GroundMesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("PlaneMesh_1")
+surface_material_override/0 = SubResource("GroundMat")
+
+[node name="GroundCollision" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("GroundShape")
+
+[node name="Building1" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 3, -10)
+
+[node name="Mesh" type="MeshInstance3D" parent="Building1"]
+mesh = SubResource("BoxMesh_Small")
+surface_material_override/0 = SubResource("BuildingMat1")
+
+[node name="Collision" type="CollisionShape3D" parent="Building1"]
+shape = SubResource("BoxShape_Small")
+
+[node name="Building2" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 5, -10)
+
+[node name="Mesh" type="MeshInstance3D" parent="Building2"]
+mesh = SubResource("BoxMesh_Large")
+surface_material_override/0 = SubResource("BuildingMat2")
+
+[node name="Collision" type="CollisionShape3D" parent="Building2"]
+shape = SubResource("BoxShape_Large")
+
+[node name="Building3" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 3, 10)
+
+[node name="Mesh" type="MeshInstance3D" parent="Building3"]
+mesh = SubResource("BoxMesh_Small")
+surface_material_override/0 = SubResource("BuildingMat1")
+
+[node name="Collision" type="CollisionShape3D" parent="Building3"]
+shape = SubResource("BoxShape_Small")
+
+[node name="Building4" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 5, 10)
+
+[node name="Mesh" type="MeshInstance3D" parent="Building4"]
+mesh = SubResource("BoxMesh_Large")
+surface_material_override/0 = SubResource("BuildingMat2")
+
+[node name="Collision" type="CollisionShape3D" parent="Building4"]
+shape = SubResource("BoxShape_Large")
+
+[node name="Entities" type="Node3D" parent="."]
+
+[node name="SpawnPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)

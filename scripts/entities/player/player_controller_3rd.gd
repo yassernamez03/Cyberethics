@@ -1,0 +1,413 @@
+# =============================================================================
+# PLAYER CONTROLLER 3RD PERSON - Third Person Character Controller
+# =============================================================================
+# Handles player movement with third-person camera following avatar
+# Path: res://scripts/entities/player/player_controller_3rd.gd
+# =============================================================================
+
+extends CharacterBody3D
+class_name PlayerController3rd
+
+# -----------------------------------------------------------------------------
+# SIGNALS
+# -----------------------------------------------------------------------------
+signal jumped
+signal landed
+
+# -----------------------------------------------------------------------------
+# EXPORTED VARIABLES - Movement
+# -----------------------------------------------------------------------------
+@export_group("Movement")
+@export var walk_speed: float = 12.0
+@export var sprint_speed: float = 20.0
+@export var acceleration: float = 10.0
+@export var deceleration: float = 15.0
+@export var rotation_speed: float = 10.0
+
+@export_group("Jump")
+@export var jump_height: float = 1.5
+@export var jump_time_to_peak: float = 0.4
+@export var jump_time_to_descent: float = 0.35
+
+@export_group("Camera")
+@export var mouse_sensitivity: float = 0.003
+@export var min_pitch: float = -40.0
+@export var max_pitch: float = 60.0
+
+# -----------------------------------------------------------------------------
+# NODE REFERENCES
+# -----------------------------------------------------------------------------
+@onready var camera_pivot: Node3D = $CameraPivot
+@onready var spring_arm: SpringArm3D = $CameraPivot/SpringArm3D
+@onready var camera: Camera3D = $CameraPivot/SpringArm3D/Camera3D
+@onready var avatar: Node3D = $Avatar
+@onready var animation_player: AnimationPlayer = $AnimationPlayer
+
+# Animation paths
+const WALKING_ANIM_PATH := "res://assets/animations/Walking.fbx"
+const IDLE_ANIM_PATH := "res://assets/animations/Idle.fbx"
+const RUNNING_ANIM_PATH := "res://assets/animations/Running.fbx"
+
+# -----------------------------------------------------------------------------
+# PRIVATE VARIABLES
+# -----------------------------------------------------------------------------
+var _jump_velocity: float
+var _jump_gravity: float
+var _fall_gravity: float
+var _was_on_floor: bool = true
+var _target_rotation: float = 0.0
+var _is_moving: bool = false
+var _is_sprinting: bool = false
+var _skeleton: Skeleton3D = null
+
+# -----------------------------------------------------------------------------
+# LIFECYCLE METHODS
+# -----------------------------------------------------------------------------
+func _ready() -> void:
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	_calculate_jump_physics()
+	_setup_animations()
+
+
+func _setup_animations() -> void:
+	# Find the skeleton in the avatar
+	_skeleton = _find_skeleton(avatar)
+	if _skeleton:
+		print("Found skeleton: ", _skeleton.name)
+	else:
+		push_warning("No Skeleton3D found in Avatar")
+	
+	# First, check if avatar has its own AnimationPlayer
+	var avatar_anim_player = _find_animation_player(avatar)
+	if avatar_anim_player:
+		animation_player = avatar_anim_player
+		print("Using Avatar's AnimationPlayer")
+	
+	# Load animations from external FBX files into the animation player
+	_load_external_animations()
+	
+	print("Available animations: ", animation_player.get_animation_list() if animation_player else "None")
+
+
+func _find_skeleton(node: Node) -> Skeleton3D:
+	if node is Skeleton3D:
+		return node
+	for child in node.get_children():
+		var result = _find_skeleton(child)
+		if result:
+			return result
+	return null
+
+
+func _load_external_animations() -> void:
+	if not animation_player:
+		push_warning("No AnimationPlayer available")
+		return
+	
+	if not _skeleton:
+		push_warning("No skeleton found - cannot load animations")
+		return
+		
+	# Ensure we have an animation library
+	if not animation_player.has_animation_library(""):
+		animation_player.add_animation_library("", AnimationLibrary.new())
+	
+	var anim_library = animation_player.get_animation_library("")
+	
+	# Print skeleton bone names for debugging (only once)
+	print("Avatar skeleton has ", _skeleton.get_bone_count(), " bones")
+	
+	# Load all animations
+	_load_single_animation(IDLE_ANIM_PATH, "Idle", anim_library)
+	_load_single_animation(WALKING_ANIM_PATH, "Walking", anim_library)
+	_load_single_animation(RUNNING_ANIM_PATH, "Running", anim_library)
+	
+	print("All available animations: ", animation_player.get_animation_list())
+
+
+func _load_single_animation(fbx_path: String, anim_name: String, anim_library: AnimationLibrary) -> void:
+	if not ResourceLoader.exists(fbx_path):
+		push_warning(anim_name + " animation not found at: " + fbx_path)
+		return
+	
+	var scene = load(fbx_path)
+	if not scene:
+		push_warning("Failed to load: " + fbx_path)
+		return
+	
+	var instance = scene.instantiate()
+	var source_skeleton = _find_skeleton(instance)
+	var source_anim_player = _find_animation_player(instance)
+	
+	if source_anim_player:
+		for src_anim_name in source_anim_player.get_animation_list():
+			var anim = source_anim_player.get_animation(src_anim_name)
+			if anim:
+				var remapped_anim = _remap_animation_tracks(anim, source_skeleton)
+				
+				if not anim_library.has_animation(anim_name):
+					anim_library.add_animation(anim_name, remapped_anim)
+					print("Loaded ", anim_name, " animation successfully!")
+				break  # Only take the first animation from each FBX
+	else:
+		push_warning("No AnimationPlayer found in " + fbx_path)
+	
+	instance.queue_free()
+
+
+func _find_animation_player(node: Node) -> AnimationPlayer:
+	if node is AnimationPlayer:
+		return node
+	for child in node.get_children():
+		var result = _find_animation_player(child)
+		if result:
+			return result
+	return null
+
+
+func _remap_animation_tracks(source_anim: Animation, source_skeleton: Skeleton3D) -> Animation:
+	var new_anim = source_anim.duplicate()
+	
+	# Get the skeleton path relative to the Player node
+	var skeleton_path := ""
+	if _skeleton:
+		skeleton_path = str(get_path_to(_skeleton))
+	
+	# Build bone name mapping between source and target skeleton
+	var bone_mapping := _build_bone_mapping(source_skeleton)
+	
+	print("Remapping animation tracks to skeleton path: ", skeleton_path)
+	
+	# Remap track paths to point to our skeleton
+	var tracks_remapped := 0
+	for i in range(new_anim.get_track_count()):
+		var track_path = new_anim.track_get_path(i)
+		var path_str = str(track_path)
+		
+		# Find the bone name (after the last colon)
+		var colon_pos = path_str.rfind(":")
+		if colon_pos != -1:
+			var bone_name = path_str.substr(colon_pos + 1)
+			
+			# Try to find matching bone in our skeleton
+			var target_bone = bone_mapping.get(bone_name, bone_name)
+			
+			# Check if this bone exists in our skeleton
+			if _skeleton.find_bone(target_bone) != -1:
+				var new_path = skeleton_path + ":" + target_bone
+				new_anim.track_set_path(i, NodePath(new_path))
+				tracks_remapped += 1
+			else:
+				# Try without prefix (some animations use mixamorig: prefix)
+				var clean_bone = bone_name.replace("mixamorig:", "").replace("mixamorig_", "")
+				if _skeleton.find_bone(clean_bone) != -1:
+					var new_path = skeleton_path + ":" + clean_bone
+					new_anim.track_set_path(i, NodePath(new_path))
+					tracks_remapped += 1
+	
+	print("Remapped ", tracks_remapped, " of ", new_anim.get_track_count(), " tracks")
+	
+	new_anim.loop_mode = Animation.LOOP_LINEAR
+	return new_anim
+
+
+func _build_bone_mapping(source_skeleton: Skeleton3D) -> Dictionary:
+	var mapping := {}
+	
+	if not source_skeleton or not _skeleton:
+		return mapping
+	
+	# Common bone name variations between Mixamo and Ready Player Me
+	var name_variants := {
+		# Mixamo naming -> common alternatives
+		"mixamorig:Hips": ["Hips", "pelvis", "hip"],
+		"mixamorig:Spine": ["Spine", "spine", "spine_01"],
+		"mixamorig:Spine1": ["Spine1", "spine_02", "spine1"],
+		"mixamorig:Spine2": ["Spine2", "spine_03", "spine2"],
+		"mixamorig:Neck": ["Neck", "neck", "neck_01"],
+		"mixamorig:Head": ["Head", "head"],
+		"mixamorig:LeftShoulder": ["LeftShoulder", "shoulder_l", "clavicle_l"],
+		"mixamorig:LeftArm": ["LeftArm", "upperarm_l", "upper_arm_l"],
+		"mixamorig:LeftForeArm": ["LeftForeArm", "lowerarm_l", "forearm_l"],
+		"mixamorig:LeftHand": ["LeftHand", "hand_l"],
+		"mixamorig:RightShoulder": ["RightShoulder", "shoulder_r", "clavicle_r"],
+		"mixamorig:RightArm": ["RightArm", "upperarm_r", "upper_arm_r"],
+		"mixamorig:RightForeArm": ["RightForeArm", "lowerarm_r", "forearm_r"],
+		"mixamorig:RightHand": ["RightHand", "hand_r"],
+		"mixamorig:LeftUpLeg": ["LeftUpLeg", "thigh_l", "upper_leg_l"],
+		"mixamorig:LeftLeg": ["LeftLeg", "calf_l", "lower_leg_l", "shin_l"],
+		"mixamorig:LeftFoot": ["LeftFoot", "foot_l"],
+		"mixamorig:LeftToeBase": ["LeftToeBase", "toe_l", "ball_l"],
+		"mixamorig:RightUpLeg": ["RightUpLeg", "thigh_r", "upper_leg_r"],
+		"mixamorig:RightLeg": ["RightLeg", "calf_r", "lower_leg_r", "shin_r"],
+		"mixamorig:RightFoot": ["RightFoot", "foot_r"],
+		"mixamorig:RightToeBase": ["RightToeBase", "toe_r", "ball_r"],
+	}
+	
+	# Build mapping by finding matching bones
+	for source_name in name_variants.keys():
+		var variants = name_variants[source_name]
+		for variant in variants:
+			if _skeleton.find_bone(variant) != -1:
+				mapping[source_name] = variant
+				# Also map without mixamorig prefix
+				var clean_name = source_name.replace("mixamorig:", "")
+				mapping[clean_name] = variant
+				break
+	
+	# Direct mapping for bones that might have same names
+	for i in range(_skeleton.get_bone_count()):
+		var bone_name = _skeleton.get_bone_name(i)
+		mapping[bone_name] = bone_name
+	
+	return mapping
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+		_handle_mouse_look(event.relative)
+	
+	# Toggle mouse capture with Escape
+	if event.is_action_pressed("pause"):
+		if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		else:
+			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+
+
+func _physics_process(delta: float) -> void:
+	_handle_movement(delta)
+	_handle_jump()
+	_apply_gravity(delta)
+	_check_landing()
+	_update_animations()
+	
+	move_and_slide()
+	
+	_was_on_floor = is_on_floor()
+
+
+# -----------------------------------------------------------------------------
+# PRIVATE METHODS - Animation
+# -----------------------------------------------------------------------------
+func _update_animations() -> void:
+	if not animation_player:
+		return
+	
+	# Determine current animation state
+	var horizontal_velocity := Vector2(velocity.x, velocity.z).length()
+	var is_moving := horizontal_velocity > 1.0  # Increased threshold
+	var is_sprinting := Input.is_action_pressed("sprint") and is_moving
+	var is_jumping := not is_on_floor() and velocity.y > 0
+	var is_falling := not is_on_floor() and velocity.y < 0
+	
+	# Handle idle state - play idle animation when not moving
+	if not is_moving and not is_jumping and not is_falling:
+		var idle_anim = _get_available_animation(["Idle", "idle"])
+		if idle_anim != "":
+			if animation_player.current_animation != idle_anim:
+				animation_player.play(idle_anim)
+		else:
+			# No idle animation - stop the current animation
+			if animation_player.is_playing():
+				animation_player.stop()
+		return
+	
+	# Play appropriate animation - check multiple possible names
+	var target_anim := ""
+	
+	if is_jumping:
+		target_anim = _get_available_animation(["Jump", "jump", "Jumping"])
+	elif is_falling:
+		target_anim = _get_available_animation(["Fall", "fall", "Falling", "Idle"])
+	elif is_sprinting:
+		target_anim = _get_available_animation(["Running", "Run", "run", "Sprint"])
+	elif is_moving:
+		target_anim = _get_available_animation(["Walking", "Walk", "walk"])
+	
+	# Only change animation if different from current and valid
+	if target_anim != "" and animation_player.current_animation != target_anim:
+		animation_player.play(target_anim)
+	elif target_anim == "" and is_moving:
+		# Fallback: try playing any available animation when moving
+		var anims = animation_player.get_animation_list()
+		if anims.size() > 0:
+			animation_player.play(anims[0])
+
+
+func _get_available_animation(names: Array) -> String:
+	for anim_name in names:
+		if animation_player.has_animation(anim_name):
+			return anim_name
+	return ""
+
+
+# -----------------------------------------------------------------------------
+# PRIVATE METHODS - Movement
+# -----------------------------------------------------------------------------
+func _handle_movement(delta: float) -> void:
+	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
+	
+	# Get camera's forward and right directions (ignoring Y)
+	var cam_basis := camera_pivot.global_transform.basis
+	var forward := -cam_basis.z
+	forward.y = 0
+	forward = forward.normalized()
+	var right := cam_basis.x
+	right.y = 0
+	right = right.normalized()
+	
+	# Calculate movement direction relative to camera
+	var direction := (forward * -input_dir.y + right * input_dir.x).normalized()
+	
+	# Determine speed
+	var is_sprinting := Input.is_action_pressed("sprint")
+	var current_speed := sprint_speed if is_sprinting else walk_speed
+	
+	if direction.length() > 0.1:
+		# Rotate avatar to face movement direction
+		var target_angle := atan2(direction.x, direction.z)
+		avatar.rotation.y = lerp_angle(avatar.rotation.y, target_angle, rotation_speed * delta)
+		
+		# Apply movement
+		velocity.x = lerp(velocity.x, direction.x * current_speed, acceleration * delta)
+		velocity.z = lerp(velocity.z, direction.z * current_speed, acceleration * delta)
+	else:
+		# Decelerate when no input
+		velocity.x = lerp(velocity.x, 0.0, deceleration * delta)
+		velocity.z = lerp(velocity.z, 0.0, deceleration * delta)
+
+
+func _handle_mouse_look(relative: Vector2) -> void:
+	# Rotate camera pivot horizontally
+	camera_pivot.rotate_y(-relative.x * mouse_sensitivity)
+	
+	# Rotate spring arm vertically (pitch)
+	spring_arm.rotate_x(-relative.y * mouse_sensitivity)
+	spring_arm.rotation.x = clamp(spring_arm.rotation.x, deg_to_rad(min_pitch), deg_to_rad(max_pitch))
+
+
+# -----------------------------------------------------------------------------
+# PRIVATE METHODS - Jump & Gravity
+# -----------------------------------------------------------------------------
+func _calculate_jump_physics() -> void:
+	_jump_velocity = (2.0 * jump_height) / jump_time_to_peak
+	_jump_gravity = (-2.0 * jump_height) / (jump_time_to_peak * jump_time_to_peak)
+	_fall_gravity = (-2.0 * jump_height) / (jump_time_to_descent * jump_time_to_descent)
+
+
+func _handle_jump() -> void:
+	if Input.is_action_just_pressed("jump") and is_on_floor():
+		velocity.y = _jump_velocity
+		jumped.emit()
+
+
+func _apply_gravity(delta: float) -> void:
+	if not is_on_floor():
+		var gravity := _jump_gravity if velocity.y > 0 else _fall_gravity
+		velocity.y += gravity * delta
+
+
+func _check_landing() -> void:
+	if is_on_floor() and not _was_on_floor:
+		landed.emit()

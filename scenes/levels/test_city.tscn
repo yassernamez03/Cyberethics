@@ -1,0 +1,79 @@
+[gd_scene load_steps=11 format=3 uid="uid://test_city"]
+
+[ext_resource type="Script" path="res://scripts/levels/test_city.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/entities/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" uid="uid://pause_menu" path="res://scenes/ui/pause_menu.tscn" id="3_pause"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-a.glb" id="3_building_a"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-b.glb" id="4_building_b"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-c.glb" id="5_building_c"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-d.glb" id="6_building_d"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-e.glb" id="7_building_e"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_industrial/Models/GLB format/building-f.glb" id="8_building_f"]
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 1
+background_color = Color(0.529, 0.808, 0.922, 1)
+ambient_light_source = 2
+ambient_light_color = Color(1, 1, 1, 1)
+ambient_light_energy = 0.3
+tonemap_mode = 2
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_1"]
+size = Vector2(100, 100)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1"]
+size = Vector3(100, 0.1, 100)
+
+[sub_resource type="StandardMaterial3D" id="Material_1"]
+albedo_color = Color(0.4, 0.4, 0.4, 1)
+
+[node name="TestCity" type="Node3D"]
+script = ExtResource("1_script")
+player_scene = ExtResource("2_player")
+
+[node name="Environment" type="Node3D" parent="."]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Environment"]
+environment = SubResource("Environment_1")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Environment"]
+transform = Transform3D(0.866, -0.433, 0.25, 0, 0.5, 0.866, -0.5, -0.75, 0.433, 0, 30, 0)
+light_color = Color(1, 0.98, 0.95, 1)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="Environment"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Environment/Ground"]
+mesh = SubResource("PlaneMesh_1")
+surface_material_override/0 = SubResource("Material_1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Environment/Ground"]
+shape = SubResource("BoxShape3D_1")
+
+[node name="Buildings" type="Node3D" parent="."]
+
+[node name="BuildingA" parent="Buildings" instance=ExtResource("3_building_a")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 0, -10)
+
+[node name="BuildingB" parent="Buildings" instance=ExtResource("4_building_b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10)
+
+[node name="BuildingC" parent="Buildings" instance=ExtResource("5_building_c")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, -10)
+
+[node name="BuildingD" parent="Buildings" instance=ExtResource("6_building_d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 0, 10)
+
+[node name="BuildingE" parent="Buildings" instance=ExtResource("7_building_e")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
+
+[node name="BuildingF" parent="Buildings" instance=ExtResource("8_building_f")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 0, 10)
+
+[node name="Entities" type="Node3D" parent="."]
+
+[node name="SpawnPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="PauseMenu" parent="." instance=ExtResource("3_pause")]
