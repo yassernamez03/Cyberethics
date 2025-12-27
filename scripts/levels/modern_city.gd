@@ -19,8 +19,10 @@ var _current_player: CharacterBody3D
 var _player_in_entrance_zone: bool = false
 var _current_entrance: Area3D = null
 var _phone_screen: CanvasLayer = null
+var _notification_popup: CanvasLayer = null
 
 const PHONE_SCREEN_SCENE := preload("res://scenes/ui/phone_screen.tscn")
+const NOTIFICATION_POPUP_SCENE := preload("res://scenes/ui/notification_popup.tscn")
 
 
 func _ready() -> void:
@@ -32,6 +34,9 @@ func _ready() -> void:
 	
 	# Setup phone screen UI
 	_setup_phone_screen()
+	
+	# Setup notification popup
+	_setup_notification_popup()
 	
 	if spawn_player_on_ready:
 		await get_tree().physics_frame
@@ -51,6 +56,21 @@ func _setup_phone_screen() -> void:
 	"""Setup the phone screen UI for text message events."""
 	_phone_screen = PHONE_SCREEN_SCENE.instantiate()
 	add_child(_phone_screen)
+
+
+func _setup_notification_popup() -> void:
+	"""Setup the notification popup and schedule first notification."""
+	_notification_popup = NOTIFICATION_POPUP_SCENE.instantiate()
+	add_child(_notification_popup)
+	
+	# Show notification after 5 seconds
+	await get_tree().create_timer(5.0).timeout
+	if _notification_popup and is_instance_valid(_notification_popup):
+		_notification_popup.show_notification(
+			"⚡ NEW MESSAGE",
+			"You have unread messages waiting...",
+			"Press [T] to open phone"
+		)
 
 
 func _input(event: InputEvent) -> void:

@@ -28,18 +28,20 @@ signal decision_made(was_correct: bool)
 var _can_dismiss: bool = false
 var _showing_result: bool = false
 
-# Sarcastic messages for when user falls for phishing (Moroccan Arabic)
+# Sarcastic messages for when user falls for phishing
 const FAIL_MESSAGES := [
-	"أُوف… شدّوك فالفخ 😬\nهادي فيشينغ!",
-	"آي آي… تبلعتي الطُّعم 🎣\nرد بالك المرة الجاية!",
-	"هاك شنو دار فيك الرابط 😅\nطاحتي فالفخ.",
+	"You just gave your bank info to a scammer!\nNever trust random prize messages.",
+	"Congrats, you just got phished!\nReal banks NEVER ask for card details via SMS.",
+	"Scammers love people like you!\nAlways verify before sharing sensitive info.",
+	"20 million? More like 0 dirhams and a stolen identity!\nIf it sounds too good to be true, it is.",
 ]
 
-# Success messages for avoiding phishing (Moroccan Arabic)
+# Success messages for avoiding phishing
 const SUCCESS_MESSAGES := [
-	"برافو عليك! 🔐\nنْجّيتي راسك من الشفّارة!",
-	"واعر بزاف! 🤝\nما طاحشتيش فالفخ.",
-	"سْمَحْ ليهم 😂\nعينك فايقة وما تضحكوش عليك.",
+	"You successfully avoided the phishing attack!\nNever share your bank details with strangers.",
+	"Smart choice! You recognized the scam!\nReal prizes don't ask for your card number.",
+	"Excellent! You protected yourself!\nAlways be suspicious of unsolicited prize messages.",
+	"Well done! You didn't fall for it!\nScammers hate people who think before clicking.",
 ]
 
 
