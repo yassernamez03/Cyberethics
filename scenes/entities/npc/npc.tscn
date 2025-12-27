@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://npc_character"]
 
 [ext_resource type="Script" uid="uid://npc_ctrl_script" path="res://scripts/entities/npc/npc_controller.gd" id="1_script"]
-[ext_resource type="PackedScene" uid="uid://bmqoe18loj11t" path="res://assets/models/Avatar/Male.glb" id="2_avatar"]
+[ext_resource type="PackedScene" path="res://assets/models/Avatar/NPC.glb" id="2_avatar"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_npc"]
 radius = 0.5
