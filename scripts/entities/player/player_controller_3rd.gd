@@ -60,6 +60,7 @@ var _target_rotation: float = 0.0
 var _is_moving: bool = false
 var _is_sprinting: bool = false
 var _skeleton: Skeleton3D = null
+var _is_jump_animating: bool = false  # Track if jump animation is playing
 
 # -----------------------------------------------------------------------------
 # LIFECYCLE METHODS
@@ -304,11 +305,27 @@ func _update_animations() -> void:
 	var horizontal_velocity := Vector2(velocity.x, velocity.z).length()
 	var is_moving := horizontal_velocity > 1.0  # Increased threshold
 	var is_sprinting := Input.is_action_pressed("sprint") and is_moving
-	var is_jumping := not is_on_floor() and velocity.y > 0
-	var is_falling := not is_on_floor() and velocity.y < 0
+	var is_in_air := not is_on_floor()
 	
-	# Handle idle state - play idle animation when not moving
-	if not is_moving and not is_jumping and not is_falling:
+	# Reset jump animation flag when landing
+	if is_on_floor() and _is_jump_animating:
+		_is_jump_animating = false
+	
+	# Start jump animation when leaving the ground with upward velocity
+	if is_in_air and velocity.y > 0 and not _is_jump_animating:
+		var jump_anim = _get_available_animation(["Jump", "jump", "Jumping"])
+		if jump_anim != "":
+			_is_jump_animating = true
+			animation_player.play(jump_anim)
+		return
+	
+	# Keep playing jump animation while in air (don't interrupt it)
+	if _is_jump_animating and is_in_air:
+		# Let the animation continue playing - don't interrupt
+		return
+	
+	# Handle idle state - play idle animation when not moving and on ground
+	if not is_moving and not is_in_air:
 		var idle_anim = _get_available_animation(["Idle", "idle"])
 		if idle_anim != "":
 			if animation_player.current_animation != idle_anim:
@@ -322,11 +339,7 @@ func _update_animations() -> void:
 	# Play appropriate animation - check multiple possible names
 	var target_anim := ""
 	
-	if is_jumping:
-		target_anim = _get_available_animation(["Jump", "jump", "Jumping"])
-	elif is_falling:
-		target_anim = _get_available_animation(["Fall", "fall", "Falling", "Idle"])
-	elif is_sprinting:
+	if is_sprinting:
 		target_anim = _get_available_animation(["Running", "Run", "run", "Sprint"])
 	elif is_moving:
 		target_anim = _get_available_animation(["Walking", "Walk", "walk"])
