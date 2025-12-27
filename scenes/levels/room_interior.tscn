@@ -1,0 +1,96 @@
+[gd_scene load_steps=10 format=3 uid="uid://hwwbhmsy02bn"]
+
+[ext_resource type="Script" uid="uid://bmqnnrss3l3ro" path="res://scripts/levels/room_interior.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://dlr5ya5r6oanl" path="res://scenes/entities/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="3_pause"]
+[ext_resource type="PackedScene" uid="uid://bgibu32jb8qw2" path="res://assets/models/rooms/old_attic.glb" id="4_room"]
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 1
+background_color = Color(0.1, 0.08, 0.06, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.9, 0.85, 0.75, 1)
+ambient_light_energy = 0.5
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="BoxMesh" id="FloorMesh"]
+size = Vector3(20, 0.2, 20)
+
+[sub_resource type="StandardMaterial3D" id="FloorMat"]
+albedo_color = Color(0.3, 0.22, 0.15, 1)
+
+[sub_resource type="BoxShape3D" id="FloorShape"]
+size = Vector3(20, 0.2, 20)
+
+[sub_resource type="BoxShape3D" id="ExitTriggerShape"]
+size = Vector3(3, 3, 2)
+
+[node name="RoomInterior" type="Node3D"]
+script = ExtResource("1_script")
+player_scene = ExtResource("2_player")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.433, 0.25, 0, 0.5, 0.866, -0.5, -0.75, 0.433, 3, 6, 3)
+light_color = Color(1, 0.95, 0.85, 1)
+light_energy = 1.2
+shadow_enabled = true
+
+[node name="PointLight1" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
+light_color = Color(1, 0.85, 0.6, 1)
+light_energy = 2.5
+omni_range = 12.0
+
+[node name="PointLight2" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 3, -3)
+light_color = Color(1, 0.9, 0.7, 1)
+light_energy = 1.5
+omni_range = 8.0
+
+[node name="PointLight3" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 3, 3)
+light_color = Color(0.95, 0.9, 0.8, 1)
+light_energy = 1.5
+omni_range = 8.0
+
+[node name="Floor" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+
+[node name="FloorMesh" type="MeshInstance3D" parent="Floor"]
+transform = Transform3D(0.986435, 0, -0.16415241, 0, 1, 0, 0.16415241, 0, 0.986435, -0.49127746, 0, 0.8353963)
+mesh = SubResource("FloorMesh")
+surface_material_override/0 = SubResource("FloorMat")
+
+[node name="FloorCollision" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("FloorShape")
+
+[node name="Room" parent="." instance=ExtResource("4_room")]
+transform = Transform3D(1.4, 0, 0, 0, 1.4, 0, 0, 0, 1.4, 7.3762083, -5.5853696, -3.1384997)
+
+[node name="Entities" type="Node3D" parent="."]
+
+[node name="SpawnPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 2)
+
+[node name="ExitDoor" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -6)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ExitDoor"]
+shape = SubResource("ExitTriggerShape")
+
+[node name="ExitLabel" type="Label3D" parent="ExitDoor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+modulate = Color(0.26786518, 0.57126176, 0.7371869, 1)
+text = "EXIT
+-> Press E <-"
+font_size = 48
+outline_size = 8
+uppercase = true
+
+[node name="PauseMenu" parent="." instance=ExtResource("3_pause")]
+grow_horizontal = 2
+grow_vertical = 2

@@ -1,27 +1,27 @@
-[gd_scene load_steps=28 format=3 uid="uid://modern_city_level"]
+[gd_scene load_steps=31 format=3 uid="uid://brv7wf8atuafk"]
 
 [ext_resource type="Script" uid="uid://b1yfhtuw4atn1" path="res://scripts/levels/modern_city.gd" id="1_script"]
-[ext_resource type="PackedScene" path="res://scenes/entities/player/player.tscn" id="2_player"]
-[ext_resource type="PackedScene" uid="uid://pause_menu" path="res://scenes/ui/pause_menu.tscn" id="3_pause"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-a.glb" id="b_a"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-b.glb" id="b_b"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-c.glb" id="b_c"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-d.glb" id="b_d"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-e.glb" id="b_e"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-f.glb" id="b_f"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-g.glb" id="b_g"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-h.glb" id="b_h"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-i.glb" id="b_i"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-j.glb" id="b_j"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-k.glb" id="b_k"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-l.glb" id="b_l"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-m.glb" id="b_m"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-n.glb" id="b_n"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-skyscraper-a.glb" id="sky_a"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-skyscraper-b.glb" id="sky_b"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-skyscraper-c.glb" id="sky_c"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-skyscraper-d.glb" id="sky_d"]
-[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-skyscraper-e.glb" id="sky_e"]
+[ext_resource type="PackedScene" uid="uid://dlr5ya5r6oanl" path="res://scenes/entities/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="3_pause"]
+[ext_resource type="PackedScene" uid="uid://dciftmxevk64p" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-a.glb" id="b_a"]
+[ext_resource type="PackedScene" uid="uid://br7i14mhke1d3" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-b.glb" id="b_b"]
+[ext_resource type="PackedScene" uid="uid://78tjgroj86hn" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-c.glb" id="b_c"]
+[ext_resource type="PackedScene" uid="uid://j1wigf043kmd" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-d.glb" id="b_d"]
+[ext_resource type="PackedScene" uid="uid://b6ah6fngfw6p3" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-e.glb" id="b_e"]
+[ext_resource type="PackedScene" uid="uid://1btbeq6odppx" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-f.glb" id="b_f"]
+[ext_resource type="PackedScene" uid="uid://b3tufrhc6x1th" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-g.glb" id="b_g"]
+[ext_resource type="PackedScene" uid="uid://8tgd8ka1ntno" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-h.glb" id="b_h"]
+[ext_resource type="PackedScene" uid="uid://u65b1355jqma" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-i.glb" id="b_i"]
+[ext_resource type="PackedScene" uid="uid://cvqh1doqomsp2" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-j.glb" id="b_j"]
+[ext_resource type="PackedScene" uid="uid://143bk38y1ix6" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-k.glb" id="b_k"]
+[ext_resource type="PackedScene" uid="uid://ie0ul6s0ornt" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-l.glb" id="b_l"]
+[ext_resource type="PackedScene" uid="uid://xbcueej6aesy" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-m.glb" id="b_m"]
+[ext_resource type="PackedScene" uid="uid://cqkadufrmf1vg" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-n.glb" id="b_n"]
+[ext_resource type="PackedScene" uid="uid://lbghvul51y1k" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-skyscraper-a.glb" id="sky_a"]
+[ext_resource type="PackedScene" uid="uid://crjxkm4cxq1w6" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-skyscraper-b.glb" id="sky_b"]
+[ext_resource type="PackedScene" uid="uid://v4dbladb2ncc" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-skyscraper-c.glb" id="sky_c"]
+[ext_resource type="PackedScene" uid="uid://n66jus0tji5k" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-skyscraper-d.glb" id="sky_d"]
+[ext_resource type="PackedScene" uid="uid://dv2pw66xktd04" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-skyscraper-e.glb" id="sky_e"]
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 2
@@ -50,6 +50,9 @@ albedo_color = Color(0.18, 0.18, 0.2, 1)
 
 [sub_resource type="PlaneMesh" id="StreetV"]
 size = Vector2(14, 200)
+
+[sub_resource type="BoxShape3D" id="EntranceTriggerShape"]
+size = Vector3(8, 5, 4)
 
 [node name="ModernCity" type="Node3D"]
 script = ExtResource("1_script")
@@ -98,7 +101,6 @@ surface_material_override/0 = SubResource("StreetMat")
 [node name="Buildings" type="Node3D" parent="."]
 
 [node name="Downtown" type="Node3D" parent="Buildings"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 
 [node name="SkyA" parent="Buildings/Downtown" instance=ExtResource("sky_a")]
 transform = Transform3D(12, 0, 0, 0, 12, 0, 0, 0, 12, -40, 0, -40)
@@ -176,7 +178,6 @@ transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -20, 0, 20)
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 20)
 
 [node name="OuterRing" type="Node3D" parent="Buildings"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 
 [node name="SkyF1" parent="Buildings/OuterRing" instance=ExtResource("sky_a")]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -80, 0, 0)
@@ -186,6 +187,20 @@ transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 80, 0, 0)
 
 [node name="SkyF3" parent="Buildings/OuterRing" instance=ExtResource("sky_c")]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 70)
+
+[node name="SkyF3Entrance" type="Area3D" parent="Buildings/OuterRing"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 58)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Buildings/OuterRing/SkyF3Entrance"]
+shape = SubResource("EntranceTriggerShape")
+
+[node name="EntranceLabel" type="Label3D" parent="Buildings/OuterRing/SkyF3Entrance"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
+modulate = Color(0.27608612, 0.52846205, 0.918433, 1)
+text = "ENTER BUILDING
+-> Press E <-"
+font_size = 48
+outline_size = 8
 
 [node name="C2" parent="Buildings/OuterRing" instance=ExtResource("b_c")]
 transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -80, 0, -60)
@@ -205,3 +220,5 @@ transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 80, 0, 60)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 10)
 
 [node name="PauseMenu" parent="." instance=ExtResource("3_pause")]
+grow_horizontal = 2
+grow_vertical = 2
