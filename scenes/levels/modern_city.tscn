@@ -1,6 +1,6 @@
 [gd_scene load_steps=28 format=3 uid="uid://modern_city_level"]
 
-[ext_resource type="Script" uid="uid://dgtushyebluue" path="res://scripts/levels/kenney_city.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://b1yfhtuw4atn1" path="res://scripts/levels/modern_city.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/entities/player/player.tscn" id="2_player"]
 [ext_resource type="PackedScene" uid="uid://pause_menu" path="res://scenes/ui/pause_menu.tscn" id="3_pause"]
 [ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-a.glb" id="b_a"]

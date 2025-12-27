@@ -44,6 +44,13 @@ var is_paused: bool = false
 # -----------------------------------------------------------------------------
 var _current_level: Node = null
 var _player_data: Dictionary = {}
+var _selected_city_index: int = 0
+
+# City scene paths
+const CITY_SCENES := {
+	0: "res://scenes/levels/modern_city.tscn",  # Modern Commercial City
+	1: "res://scenes/levels/kenney_city.tscn",  # Industrial City
+}
 
 # -----------------------------------------------------------------------------
 # LIFECYCLE METHODS
@@ -107,6 +114,22 @@ func get_player_data() -> Dictionary:
 
 func set_player_data(key: String, value: Variant) -> void:
 	_player_data[key] = value
+
+
+# -----------------------------------------------------------------------------
+# CITY SELECTION METHODS
+# -----------------------------------------------------------------------------
+func get_selected_city_index() -> int:
+	return _selected_city_index
+
+
+func set_selected_city_index(index: int) -> void:
+	_selected_city_index = index
+	print("[GameManager] City set to index: ", index)
+
+
+func get_selected_city_path() -> String:
+	return CITY_SCENES.get(_selected_city_index, CITY_SCENES[0])
 
 
 # -----------------------------------------------------------------------------

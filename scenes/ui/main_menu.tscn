@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://main_menu"]
+[gd_scene load_steps=3 format=3 uid="uid://main_menu"]
 
 [ext_resource type="Script" path="res://scripts/ui/main_menu.gd" id="1_menu"]
+[ext_resource type="PackedScene" uid="uid://settings_menu" path="res://scenes/ui/settings_menu.tscn" id="2_settings"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -34,7 +35,7 @@ theme_override_constants/separation = 20
 [node name="Title" type="Label" parent="VBoxContainer"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 48
-text = "YOUR GAME"
+text = "CYBER CITY"
 horizontal_alignment = 1
 
 [node name="NewGameButton" type="Button" parent="VBoxContainer"]
@@ -52,6 +53,9 @@ text = "Settings"
 [node name="QuitButton" type="Button" parent="VBoxContainer"]
 layout_mode = 2
 text = "Quit"
+
+[node name="SettingsMenu" parent="." instance=ExtResource("2_settings")]
+visible = false
 
 [connection signal="pressed" from="VBoxContainer/NewGameButton" to="." method="_on_new_game_pressed"]
 [connection signal="pressed" from="VBoxContainer/ContinueButton" to="." method="_on_continue_pressed"]

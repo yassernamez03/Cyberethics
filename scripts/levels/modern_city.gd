@@ -1,8 +1,8 @@
 # =============================================================================
-# KENNEY CITY - Industrial City Level
+# MODERN CITY - Commercial City Level
 # =============================================================================
-# City level using Kenney industrial kit buildings
-# Path: res://scripts/levels/kenney_city.gd
+# City level using Kenney commercial kit buildings with skyscrapers
+# Path: res://scripts/levels/modern_city.gd
 # =============================================================================
 
 extends Node3D
@@ -29,8 +29,8 @@ func _ready() -> void:
 		GameManager.change_state(GameManager.GameState.PLAYING)
 	
 	print("===========================================")
-	print("KENNEY INDUSTRIAL CITY LOADED!")
-	print("Controls: WASD = Move, Mouse = Look, Space = Jump")
+	print("MODERN COMMERCIAL CITY LOADED!")
+	print("Controls: WASD = Move, Shift = Sprint, Mouse = Look, Space = Jump")
 	print("===========================================")
 
 
