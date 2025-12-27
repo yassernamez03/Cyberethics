@@ -1,0 +1,207 @@
+[gd_scene load_steps=28 format=3 uid="uid://modern_city_level"]
+
+[ext_resource type="Script" uid="uid://dgtushyebluue" path="res://scripts/levels/kenney_city.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/entities/player/player.tscn" id="2_player"]
+[ext_resource type="PackedScene" uid="uid://pause_menu" path="res://scenes/ui/pause_menu.tscn" id="3_pause"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-a.glb" id="b_a"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-b.glb" id="b_b"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-c.glb" id="b_c"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-d.glb" id="b_d"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-e.glb" id="b_e"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-f.glb" id="b_f"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-g.glb" id="b_g"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-h.glb" id="b_h"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-i.glb" id="b_i"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-j.glb" id="b_j"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-k.glb" id="b_k"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-l.glb" id="b_l"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-m.glb" id="b_m"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-n.glb" id="b_n"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-skyscraper-a.glb" id="sky_a"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-skyscraper-b.glb" id="sky_b"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-skyscraper-c.glb" id="sky_c"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-skyscraper-d.glb" id="sky_d"]
+[ext_resource type="PackedScene" path="res://assets/models/kenney_city_commercial/Models/GLB format/building-skyscraper-e.glb" id="sky_e"]
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 2
+background_color = Color(0.529412, 0.807843, 0.921569, 1)
+sky_custom_fov = 30.0
+ambient_light_source = 2
+ambient_light_color = Color(0.95, 0.95, 1, 1)
+ambient_light_energy = 0.6
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="PlaneMesh" id="GroundMesh"]
+size = Vector2(200, 200)
+
+[sub_resource type="StandardMaterial3D" id="GroundMat"]
+albedo_color = Color(0.4, 0.42, 0.4, 1)
+
+[sub_resource type="BoxShape3D" id="GroundShape"]
+size = Vector3(200, 0.2, 200)
+
+[sub_resource type="PlaneMesh" id="StreetH"]
+size = Vector2(200, 14)
+
+[sub_resource type="StandardMaterial3D" id="StreetMat"]
+albedo_color = Color(0.18, 0.18, 0.2, 1)
+
+[sub_resource type="PlaneMesh" id="StreetV"]
+size = Vector2(14, 200)
+
+[node name="ModernCity" type="Node3D"]
+script = ExtResource("1_script")
+player_scene = ExtResource("2_player")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.766, -0.557, 0.321, 0, 0.5, 0.866, -0.643, -0.663, 0.383, 30, 50, 30)
+light_color = Color(1, 0.98, 0.95, 1)
+light_energy = 1.3
+shadow_enabled = true
+
+[node name="Ground" type="StaticBody3D" parent="."]
+
+[node name="GroundMesh" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("GroundMesh")
+surface_material_override/0 = SubResource("GroundMat")
+
+[node name="GroundCollision" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("GroundShape")
+
+[node name="Streets" type="Node3D" parent="."]
+
+[node name="MainStreetH" type="MeshInstance3D" parent="Streets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+mesh = SubResource("StreetH")
+surface_material_override/0 = SubResource("StreetMat")
+
+[node name="MainStreetV" type="MeshInstance3D" parent="Streets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+mesh = SubResource("StreetV")
+surface_material_override/0 = SubResource("StreetMat")
+
+[node name="SideStreetH1" type="MeshInstance3D" parent="Streets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, -50)
+mesh = SubResource("StreetH")
+surface_material_override/0 = SubResource("StreetMat")
+
+[node name="SideStreetH2" type="MeshInstance3D" parent="Streets"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 50)
+mesh = SubResource("StreetH")
+surface_material_override/0 = SubResource("StreetMat")
+
+[node name="Buildings" type="Node3D" parent="."]
+
+[node name="Downtown" type="Node3D" parent="Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="SkyA" parent="Buildings/Downtown" instance=ExtResource("sky_a")]
+transform = Transform3D(12, 0, 0, 0, 12, 0, 0, 0, 12, -40, 0, -40)
+
+[node name="SkyB" parent="Buildings/Downtown" instance=ExtResource("sky_b")]
+transform = Transform3D(12, 0, 0, 0, 12, 0, 0, 0, 12, 40, 0, -40)
+
+[node name="SkyC" parent="Buildings/Downtown" instance=ExtResource("sky_c")]
+transform = Transform3D(12, 0, 0, 0, 12, 0, 0, 0, 12, -40, 0, 40)
+
+[node name="SkyD" parent="Buildings/Downtown" instance=ExtResource("sky_d")]
+transform = Transform3D(12, 0, 0, 0, 12, 0, 0, 0, 12, 40, 0, 40)
+
+[node name="SkyE" parent="Buildings/Downtown" instance=ExtResource("sky_e")]
+transform = Transform3D(14, 0, 0, 0, 14, 0, 0, 0, 14, 0, 0, -70)
+
+[node name="Block1" type="Node3D" parent="Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -55, 0, -25)
+
+[node name="A1" parent="Buildings/Block1" instance=ExtResource("b_a")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
+
+[node name="B1" parent="Buildings/Block1" instance=ExtResource("b_b")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 20, 0, 0)
+
+[node name="C1" parent="Buildings/Block1" instance=ExtResource("b_c")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, -20)
+
+[node name="D1" parent="Buildings/Block1" instance=ExtResource("b_d")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 20, 0, -20)
+
+[node name="Block2" type="Node3D" parent="Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, 0, -25)
+
+[node name="E1" parent="Buildings/Block2" instance=ExtResource("b_e")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -20, 0, 0)
+
+[node name="F1" parent="Buildings/Block2" instance=ExtResource("b_f")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
+
+[node name="G1" parent="Buildings/Block2" instance=ExtResource("b_g")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -20, 0, -20)
+
+[node name="H1" parent="Buildings/Block2" instance=ExtResource("b_h")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, -20)
+
+[node name="Block3" type="Node3D" parent="Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -55, 0, 25)
+
+[node name="I1" parent="Buildings/Block3" instance=ExtResource("b_i")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
+
+[node name="J1" parent="Buildings/Block3" instance=ExtResource("b_j")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 20, 0, 0)
+
+[node name="K1" parent="Buildings/Block3" instance=ExtResource("b_k")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 20)
+
+[node name="L1" parent="Buildings/Block3" instance=ExtResource("b_l")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 20, 0, 20)
+
+[node name="Block4" type="Node3D" parent="Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55, 0, 25)
+
+[node name="M1" parent="Buildings/Block4" instance=ExtResource("b_m")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -20, 0, 0)
+
+[node name="N1" parent="Buildings/Block4" instance=ExtResource("b_n")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 0)
+
+[node name="A2" parent="Buildings/Block4" instance=ExtResource("b_a")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -20, 0, 20)
+
+[node name="B2" parent="Buildings/Block4" instance=ExtResource("b_b")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 20)
+
+[node name="OuterRing" type="Node3D" parent="Buildings"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="SkyF1" parent="Buildings/OuterRing" instance=ExtResource("sky_a")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -80, 0, 0)
+
+[node name="SkyF2" parent="Buildings/OuterRing" instance=ExtResource("sky_b")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 80, 0, 0)
+
+[node name="SkyF3" parent="Buildings/OuterRing" instance=ExtResource("sky_c")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, 0, 70)
+
+[node name="C2" parent="Buildings/OuterRing" instance=ExtResource("b_c")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -80, 0, -60)
+
+[node name="D2" parent="Buildings/OuterRing" instance=ExtResource("b_d")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 80, 0, -60)
+
+[node name="E2" parent="Buildings/OuterRing" instance=ExtResource("b_e")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -80, 0, 60)
+
+[node name="F2" parent="Buildings/OuterRing" instance=ExtResource("b_f")]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 80, 0, 60)
+
+[node name="Entities" type="Node3D" parent="."]
+
+[node name="SpawnPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 10)
+
+[node name="PauseMenu" parent="." instance=ExtResource("3_pause")]

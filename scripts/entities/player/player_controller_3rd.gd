@@ -18,14 +18,14 @@ signal landed
 # EXPORTED VARIABLES - Movement
 # -----------------------------------------------------------------------------
 @export_group("Movement")
-@export var walk_speed: float = 12.0
-@export var sprint_speed: float = 20.0
+@export var walk_speed: float = 5.0
+@export var sprint_speed: float = 9.0
 @export var acceleration: float = 10.0
 @export var deceleration: float = 15.0
 @export var rotation_speed: float = 10.0
 
 @export_group("Jump")
-@export var jump_height: float = 1.5
+@export var jump_height: float = 1.2
 @export var jump_time_to_peak: float = 0.4
 @export var jump_time_to_descent: float = 0.35
 
