@@ -25,9 +25,9 @@ signal landed
 @export var rotation_speed: float = 10.0
 
 @export_group("Jump")
-@export var jump_height: float = 1.2
-@export var jump_time_to_peak: float = 0.4
-@export var jump_time_to_descent: float = 0.35
+@export var jump_height: float = 1.8
+@export var jump_time_to_peak: float = 0.45
+@export var jump_time_to_descent: float = 0.4
 
 @export_group("Camera")
 @export var mouse_sensitivity: float = 0.003
@@ -47,6 +47,7 @@ signal landed
 const WALKING_ANIM_PATH := "res://assets/animations/Walking.fbx"
 const IDLE_ANIM_PATH := "res://assets/animations/Idle.fbx"
 const RUNNING_ANIM_PATH := "res://assets/animations/Running.fbx"
+const JUMPING_ANIM_PATH := "res://assets/animations/Jumping.fbx"
 
 # -----------------------------------------------------------------------------
 # PRIVATE VARIABLES
@@ -121,11 +122,12 @@ func _load_external_animations() -> void:
 	_load_single_animation(IDLE_ANIM_PATH, "Idle", anim_library)
 	_load_single_animation(WALKING_ANIM_PATH, "Walking", anim_library)
 	_load_single_animation(RUNNING_ANIM_PATH, "Running", anim_library)
+	_load_single_animation(JUMPING_ANIM_PATH, "Jumping", anim_library, false)  # Don't loop jump
 	
 	print("All available animations: ", animation_player.get_animation_list())
 
 
-func _load_single_animation(fbx_path: String, anim_name: String, anim_library: AnimationLibrary) -> void:
+func _load_single_animation(fbx_path: String, anim_name: String, anim_library: AnimationLibrary, should_loop: bool = true) -> void:
 	if not ResourceLoader.exists(fbx_path):
 		push_warning(anim_name + " animation not found at: " + fbx_path)
 		return
@@ -143,7 +145,7 @@ func _load_single_animation(fbx_path: String, anim_name: String, anim_library: A
 		for src_anim_name in source_anim_player.get_animation_list():
 			var anim = source_anim_player.get_animation(src_anim_name)
 			if anim:
-				var remapped_anim = _remap_animation_tracks(anim, source_skeleton)
+				var remapped_anim = _remap_animation_tracks(anim, source_skeleton, should_loop)
 				
 				if not anim_library.has_animation(anim_name):
 					anim_library.add_animation(anim_name, remapped_anim)
@@ -165,7 +167,7 @@ func _find_animation_player(node: Node) -> AnimationPlayer:
 	return null
 
 
-func _remap_animation_tracks(source_anim: Animation, source_skeleton: Skeleton3D) -> Animation:
+func _remap_animation_tracks(source_anim: Animation, source_skeleton: Skeleton3D, should_loop: bool = true) -> Animation:
 	var new_anim = source_anim.duplicate()
 	
 	# Get the skeleton path relative to the Player node
@@ -207,7 +209,11 @@ func _remap_animation_tracks(source_anim: Animation, source_skeleton: Skeleton3D
 	
 	print("Remapped ", tracks_remapped, " of ", new_anim.get_track_count(), " tracks")
 	
-	new_anim.loop_mode = Animation.LOOP_LINEAR
+	# Set loop mode based on parameter
+	if should_loop:
+		new_anim.loop_mode = Animation.LOOP_LINEAR
+	else:
+		new_anim.loop_mode = Animation.LOOP_NONE
 	return new_anim
 
 
