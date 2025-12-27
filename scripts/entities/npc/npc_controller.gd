@@ -47,6 +47,7 @@ signal dialogue_ended
 const WALKING_ANIM_PATH := "res://assets/animations/Walking.fbx"
 const IDLE_ANIM_PATH := "res://assets/animations/Idle.fbx"
 const SAD_IDLE_ANIM_PATH := "res://assets/animations/Sad Idle.fbx"
+const TALKING_ANIM_PATH := "res://assets/animations/NPC Animation/Talking.fbx"
 
 # -----------------------------------------------------------------------------
 # PRIVATE VARIABLES
@@ -98,7 +99,8 @@ func _physics_process(delta: float) -> void:
 	# Don't move during dialogue
 	if _is_in_dialogue:
 		velocity = Vector3.ZERO
-		_update_animation(false)
+		# Play talking animation during dialogue
+		_play_animation("Talking")
 		# Face the player during dialogue
 		if _target_player:
 			var look_dir = (_target_player.global_position - global_position).normalized()
@@ -274,9 +276,22 @@ func _arrive_at_destination() -> void:
 # -----------------------------------------------------------------------------
 # ANIMATION METHODS
 # -----------------------------------------------------------------------------
+var _skeleton_path: String = ""
+
 func _setup_animations() -> void:
+	print("[NPC] Setting up animations...")
+	
 	# Find skeleton in avatar
 	_skeleton = _find_skeleton(avatar)
+	if _skeleton:
+		_skeleton_path = _get_skeleton_path(_skeleton)
+		print("[NPC] Found skeleton at path: ", _skeleton_path)
+		print("[NPC] Skeleton has ", _skeleton.get_bone_count(), " bones")
+		# Print first few bones for debugging
+		for i in range(min(5, _skeleton.get_bone_count())):
+			print("[NPC] Bone ", i, ": ", _skeleton.get_bone_name(i))
+	else:
+		print("[NPC] WARNING: No skeleton found in avatar!")
 	
 	# Find or create animation player
 	_animation_player = _find_animation_player(avatar)
@@ -284,6 +299,9 @@ func _setup_animations() -> void:
 		_animation_player = AnimationPlayer.new()
 		_animation_player.name = "NPCAnimationPlayer"
 		add_child(_animation_player)
+		print("[NPC] Created new AnimationPlayer")
+	else:
+		print("[NPC] Found existing AnimationPlayer")
 	
 	# Load animations
 	_load_external_animations()
@@ -313,14 +331,28 @@ func _find_animation_player(node: Node) -> AnimationPlayer:
 	return null
 
 
+func _get_skeleton_path(skeleton: Skeleton3D) -> String:
+	# Build path from avatar to skeleton
+	var path_parts: Array[String] = []
+	var current: Node = skeleton
+	
+	while current != null and current != self:
+		path_parts.push_front(current.name)
+		current = current.get_parent()
+	
+	return "/".join(path_parts)
+
+
 func _load_external_animations() -> void:
 	if not _animation_player or not _skeleton:
+		print("[NPC] Cannot load animations - missing player or skeleton")
 		return
 	
 	var animations_to_load = {
 		"Walking": WALKING_ANIM_PATH,
 		"Idle": IDLE_ANIM_PATH,
-		"SadIdle": SAD_IDLE_ANIM_PATH
+		"SadIdle": SAD_IDLE_ANIM_PATH,
+		"Talking": TALKING_ANIM_PATH
 	}
 	
 	var anim_lib: AnimationLibrary
@@ -333,43 +365,136 @@ func _load_external_animations() -> void:
 	for anim_name in animations_to_load:
 		var anim_path = animations_to_load[anim_name]
 		if not ResourceLoader.exists(anim_path):
+			print("[NPC] Animation file not found: ", anim_path)
 			continue
 		
 		var anim_scene = load(anim_path)
 		if not anim_scene:
+			print("[NPC] Failed to load animation scene: ", anim_path)
 			continue
 		
 		var anim_instance = anim_scene.instantiate()
 		var source_anim_player = _find_animation_player(anim_instance)
+		var source_skeleton = _find_skeleton(anim_instance)
 		
-		if source_anim_player:
+		if source_anim_player and source_skeleton:
+			print("[NPC] Loading animation: ", anim_name)
+			var bone_mapping = _build_bone_mapping(source_skeleton)
+			
 			for source_anim_name in source_anim_player.get_animation_list():
 				var source_anim = source_anim_player.get_animation(source_anim_name)
 				if source_anim:
-					var new_anim = _retarget_animation(source_anim)
+					var new_anim = _remap_animation_tracks(source_anim, bone_mapping, true)
 					if anim_lib.has_animation(anim_name):
 						anim_lib.remove_animation(anim_name)
 					anim_lib.add_animation(anim_name, new_anim)
+					print("[NPC] Successfully loaded: ", anim_name)
 					break
+		else:
+			print("[NPC] No animation player or skeleton in: ", anim_path)
 		
 		anim_instance.queue_free()
-
-
-func _retarget_animation(source_anim: Animation) -> Animation:
-	var new_anim = source_anim.duplicate()
-	new_anim.loop_mode = Animation.LOOP_LINEAR
 	
-	for track_idx in range(new_anim.get_track_count()):
-		var track_path = new_anim.track_get_path(track_idx)
-		var path_string = str(track_path)
+	print("[NPC] Animation loading complete. Available animations: ", _animation_player.get_animation_list())
+
+
+func _build_bone_mapping(source_skeleton: Skeleton3D) -> Dictionary:
+	var mapping := {}
+	
+	if not source_skeleton or not _skeleton:
+		return mapping
+	
+	# Common bone name variations between Mixamo and Ready Player Me
+	var name_variants := {
+		"mixamorig:Hips": ["Hips", "pelvis", "hip"],
+		"mixamorig:Spine": ["Spine", "spine", "spine_01"],
+		"mixamorig:Spine1": ["Spine1", "spine_02", "spine1"],
+		"mixamorig:Spine2": ["Spine2", "spine_03", "spine2"],
+		"mixamorig:Neck": ["Neck", "neck", "neck_01"],
+		"mixamorig:Head": ["Head", "head"],
+		"mixamorig:LeftShoulder": ["LeftShoulder", "shoulder_l", "clavicle_l"],
+		"mixamorig:LeftArm": ["LeftArm", "upperarm_l", "upper_arm_l"],
+		"mixamorig:LeftForeArm": ["LeftForeArm", "lowerarm_l", "forearm_l"],
+		"mixamorig:LeftHand": ["LeftHand", "hand_l"],
+		"mixamorig:RightShoulder": ["RightShoulder", "shoulder_r", "clavicle_r"],
+		"mixamorig:RightArm": ["RightArm", "upperarm_r", "upper_arm_r"],
+		"mixamorig:RightForeArm": ["RightForeArm", "lowerarm_r", "forearm_r"],
+		"mixamorig:RightHand": ["RightHand", "hand_r"],
+		"mixamorig:LeftUpLeg": ["LeftUpLeg", "thigh_l", "upper_leg_l"],
+		"mixamorig:LeftLeg": ["LeftLeg", "calf_l", "lower_leg_l", "shin_l"],
+		"mixamorig:LeftFoot": ["LeftFoot", "foot_l"],
+		"mixamorig:LeftToeBase": ["LeftToeBase", "toe_l", "ball_l"],
+		"mixamorig:RightUpLeg": ["RightUpLeg", "thigh_r", "upper_leg_r"],
+		"mixamorig:RightLeg": ["RightLeg", "calf_r", "lower_leg_r", "shin_r"],
+		"mixamorig:RightFoot": ["RightFoot", "foot_r"],
+		"mixamorig:RightToeBase": ["RightToeBase", "toe_r", "ball_r"],
+	}
+	
+	# Build mapping by finding matching bones
+	for source_name in name_variants.keys():
+		var variants = name_variants[source_name]
+		for variant in variants:
+			if _skeleton.find_bone(variant) != -1:
+				mapping[source_name] = variant
+				break
+	
+	# Also try direct name matching
+	for i in range(source_skeleton.get_bone_count()):
+		var source_bone = source_skeleton.get_bone_name(i)
+		if source_bone in mapping:
+			continue
 		
-		# Retarget to Avatar skeleton
-		if "Skeleton3D" in path_string or "Armature" in path_string:
-			var parts = path_string.split(":")
-			if parts.size() >= 2:
-				var bone_name = parts[1]
-				var new_path = "Avatar/Armature/Skeleton3D:" + bone_name
-				new_anim.track_set_path(track_idx, NodePath(new_path))
+		# Direct match
+		if _skeleton.find_bone(source_bone) != -1:
+			mapping[source_bone] = source_bone
+		else:
+			# Try without mixamorig prefix
+			var clean_name = source_bone.replace("mixamorig:", "").replace("mixamorig_", "")
+			if _skeleton.find_bone(clean_name) != -1:
+				mapping[source_bone] = clean_name
+	
+	return mapping
+
+
+func _remap_animation_tracks(source_anim: Animation, bone_mapping: Dictionary, should_loop: bool) -> Animation:
+	var new_anim = source_anim.duplicate()
+	var tracks_remapped := 0
+	
+	for i in range(new_anim.get_track_count()):
+		var track_path = new_anim.track_get_path(i)
+		var path_str = str(track_path)
+		
+		# Skip non-skeleton tracks
+		if not ("Skeleton3D" in path_str or "Armature" in path_str):
+			continue
+		
+		# Extract bone name from path (format: "Node/Skeleton3D:BoneName")
+		var parts = path_str.split(":")
+		if parts.size() < 2:
+			continue
+		
+		var bone_name = parts[1]
+		var target_bone = bone_mapping.get(bone_name, bone_name)
+		
+		# Check if this bone exists in our skeleton
+		if _skeleton.find_bone(target_bone) != -1:
+			var new_path = _skeleton_path + ":" + target_bone
+			new_anim.track_set_path(i, NodePath(new_path))
+			tracks_remapped += 1
+		else:
+			# Try without prefix
+			var clean_bone = bone_name.replace("mixamorig:", "").replace("mixamorig_", "")
+			if _skeleton.find_bone(clean_bone) != -1:
+				var new_path = _skeleton_path + ":" + clean_bone
+				new_anim.track_set_path(i, NodePath(new_path))
+				tracks_remapped += 1
+	
+	print("[NPC] Remapped ", tracks_remapped, " of ", new_anim.get_track_count(), " tracks")
+	
+	if should_loop:
+		new_anim.loop_mode = Animation.LOOP_LINEAR
+	else:
+		new_anim.loop_mode = Animation.LOOP_NONE
 	
 	return new_anim
 
@@ -378,14 +503,14 @@ func _update_animation(is_moving: bool) -> void:
 	if not _animations_loaded:
 		return
 	
+	# Don't change animation if in dialogue (handled separately)
+	if _is_in_dialogue:
+		return
+	
 	if is_moving:
 		_play_animation("Walking")
 	else:
-		# Randomly choose between Idle and SadIdle for variety
-		if randf() < 0.3 and _animation_player.has_animation("SadIdle"):
-			_play_animation("SadIdle")
-		else:
-			_play_animation("Idle")
+		_play_animation("Idle")
 
 
 func _play_animation(anim_name: String) -> void:
@@ -395,6 +520,5 @@ func _play_animation(anim_name: String) -> void:
 	if _animation_player.has_animation(anim_name):
 		if _animation_player.current_animation != anim_name:
 			_animation_player.play(anim_name)
-	elif _animation_player.has_animation(""):
-		# Fallback to default
-		pass
+	else:
+		print("[NPC] Animation not found: ", anim_name, " - available: ", _animation_player.get_animation_list())

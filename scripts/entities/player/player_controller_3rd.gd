@@ -50,6 +50,7 @@ const IDLE_ANIM_PATH := "res://assets/animations/Idle.fbx"
 const RUNNING_ANIM_PATH := "res://assets/animations/Running.fbx"
 const JUMPING_ANIM_PATH := "res://assets/animations/Jumping.fbx"
 const TEXTING_ANIM_PATH := "res://assets/animations/Texting While Standing.fbx"
+const TALKING_ANIM_PATH := "res://assets/animations/Talking.fbx"
 
 # -----------------------------------------------------------------------------
 # PRIVATE VARIABLES
@@ -67,6 +68,7 @@ var _game_time: float = 0.0  # Track total game time
 var _texting_triggered: bool = false  # Has the texting event been triggered?
 var _is_texting: bool = false  # Currently playing texting animation?
 var _can_move: bool = true  # Can the player move? (disabled during dialogue)
+var _is_in_dialogue: bool = false  # Is the player in dialogue with an NPC?
 const TEXTING_TRIGGER_TIME: float = 20.0  # 3 minutes = 180 seconds
 
 # Footstep sound variables
@@ -89,9 +91,24 @@ func _ready() -> void:
 func set_can_move(can_move: bool) -> void:
 	"""Enable or disable player movement (used during dialogue)."""
 	_can_move = can_move
+	_is_in_dialogue = not can_move
 	if not can_move:
 		velocity.x = 0
 		velocity.z = 0
+		# Stop walking sound
+		if AudioManager:
+			AudioManager.stop_walking_sound()
+		# Play talking animation during dialogue
+		if animation_player:
+			var talk_anim = _get_available_animation(["Talking", "talking", "Talk"])
+			if talk_anim != "":
+				animation_player.play(talk_anim)
+	else:
+		# Return to idle when dialogue ends
+		if animation_player:
+			var idle_anim = _get_available_animation(["Idle", "idle"])
+			if idle_anim != "":
+				animation_player.play(idle_anim)
 
 
 func _setup_animations() -> void:
@@ -148,6 +165,7 @@ func _load_external_animations() -> void:
 	_load_single_animation(RUNNING_ANIM_PATH, "Running", anim_library)
 	_load_single_animation(JUMPING_ANIM_PATH, "Jumping", anim_library, false)  # Don't loop jump
 	_load_single_animation(TEXTING_ANIM_PATH, "Texting", anim_library)  # Texting animation
+	_load_single_animation(TALKING_ANIM_PATH, "Talking", anim_library)  # Talking animation for dialogue
 	
 	print("All available animations: ", animation_player.get_animation_list())
 
@@ -329,6 +347,10 @@ func _physics_process(delta: float) -> void:
 # -----------------------------------------------------------------------------
 func _update_animations() -> void:
 	if not animation_player:
+		return
+	
+	# Don't update animations during dialogue - talking animation is handled by set_can_move
+	if _is_in_dialogue:
 		return
 	
 	# Determine current animation state
