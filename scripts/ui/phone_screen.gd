@@ -143,17 +143,11 @@ func _input(event: InputEvent) -> void:
 	if not visible or not _can_dismiss:
 		return
 	
-	# Dismiss on space, enter, or click
-	if event.is_action_pressed("jump") or event.is_action_pressed("ui_accept"):
-		hide_phone()
-	elif event is InputEventMouseButton and event.pressed:
+	# Only dismiss on F key
+	if event is InputEventKey and event.pressed and event.keycode == KEY_F:
 		hide_phone()
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not visible or not _can_dismiss:
-		return
-	
-	# Also catch escape to dismiss
-	if event.is_action_pressed("pause") or event.is_action_pressed("ui_cancel"):
-		hide_phone()
+	# Block all other input while phone is visible
+	pass

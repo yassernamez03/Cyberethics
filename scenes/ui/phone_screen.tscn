@@ -265,12 +265,10 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 14
 text = "السلام عليكم ، ربحتي معانا فمسابقة 20 مليون ، رسلينا المعلومات البنكية ديالك كاملة باش تأكد الاستلام :
-
 الاسم و النسب
 رقم البطاقة البنكية
 تاريخ انتهاء الصلاحية
 الرقم المكتوب على ظهر البطاقة
-
 او يمكن ليك ترسل صورة البطاقة امام و الخلف"
 autowrap_mode = 2
 horizontal_alignment = 2
@@ -362,7 +360,7 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
 theme_override_font_sizes/font_size = 12
-text = "Press SPACE to continue..."
+text = "Press F to continue..."
 horizontal_alignment = 1
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
