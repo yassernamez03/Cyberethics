@@ -15,11 +15,17 @@ extends Node3D
 @onready var buildings: Node3D = $Buildings
 
 var _current_player: CharacterBody3D
+var _phone_screen: CanvasLayer = null
+
+const PHONE_SCREEN_SCENE := preload("res://scenes/ui/phone_screen.tscn")
 
 
 func _ready() -> void:
 	# Add collision to all buildings
 	_setup_building_collision()
+	
+	# Setup phone screen UI
+	_setup_phone_screen()
 	
 	if spawn_player_on_ready:
 		await get_tree().physics_frame
@@ -34,6 +40,12 @@ func _ready() -> void:
 	print("===========================================")
 
 
+func _setup_phone_screen() -> void:
+	"""Setup the phone screen UI for text message events."""
+	_phone_screen = PHONE_SCREEN_SCENE.instantiate()
+	add_child(_phone_screen)
+
+
 func spawn_player() -> CharacterBody3D:
 	if player_scene == null:
 		push_error("[KenneyCity] No player scene assigned!")
@@ -43,8 +55,20 @@ func spawn_player() -> CharacterBody3D:
 	entities.add_child(_current_player)
 	_current_player.global_position = spawn_point.global_position
 	
+	# Connect text_received signal to show phone screen
+	if _current_player.has_signal("text_received"):
+		_current_player.text_received.connect(_on_player_text_received)
+		print("[KenneyCity] Connected to player text_received signal")
+	
 	print("[KenneyCity] Player spawned at ", spawn_point.global_position)
 	return _current_player
+
+
+func _on_player_text_received() -> void:
+	"""Called when player receives a phishing text message."""
+	if _phone_screen:
+		# Show the phishing message with default content
+		_phone_screen.show_message()
 
 
 func get_player() -> CharacterBody3D:

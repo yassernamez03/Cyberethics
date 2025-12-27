@@ -18,6 +18,9 @@ extends Node3D
 var _current_player: CharacterBody3D
 var _player_in_entrance_zone: bool = false
 var _current_entrance: Area3D = null
+var _phone_screen: CanvasLayer = null
+
+const PHONE_SCREEN_SCENE := preload("res://scenes/ui/phone_screen.tscn")
 
 
 func _ready() -> void:
@@ -26,6 +29,9 @@ func _ready() -> void:
 	
 	# Setup building entrances
 	_setup_building_entrances()
+	
+	# Setup phone screen UI
+	_setup_phone_screen()
 	
 	if spawn_player_on_ready:
 		await get_tree().physics_frame
@@ -39,6 +45,12 @@ func _ready() -> void:
 	print("Controls: WASD = Move, Shift = Sprint, Mouse = Look, Space = Jump")
 	print("Press E near SkyF3 building entrance to enter")
 	print("===========================================")
+
+
+func _setup_phone_screen() -> void:
+	"""Setup the phone screen UI for text message events."""
+	_phone_screen = PHONE_SCREEN_SCENE.instantiate()
+	add_child(_phone_screen)
 
 
 func _input(event: InputEvent) -> void:
@@ -59,8 +71,20 @@ func spawn_player() -> CharacterBody3D:
 	entities.add_child(_current_player)
 	_current_player.global_position = spawn_point.global_position
 	
+	# Connect text_received signal to show phone screen
+	if _current_player.has_signal("text_received"):
+		_current_player.text_received.connect(_on_player_text_received)
+		print("[ModernCity] Connected to player text_received signal")
+	
 	print("[KenneyCity] Player spawned at ", spawn_point.global_position)
 	return _current_player
+
+
+func _on_player_text_received() -> void:
+	"""Called when player receives a phishing text message."""
+	if _phone_screen:
+		# Show the phishing message with default content
+		_phone_screen.show_message()
 
 
 func get_player() -> CharacterBody3D:

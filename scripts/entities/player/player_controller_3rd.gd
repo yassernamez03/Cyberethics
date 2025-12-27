@@ -287,6 +287,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		else:
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	
+	# Press T to trigger phone/text message (for testing or manual trigger)
+	if event is InputEventKey and event.pressed and event.keycode == KEY_T:
+		if not _is_texting:
+			_trigger_texting_event()
 
 
 func _physics_process(delta: float) -> void:
@@ -391,13 +396,17 @@ func _trigger_texting_event() -> void:
 	_texting_triggered = true
 	_is_texting = true
 	
-	# Play texting animation
+	# Play texting animation first
 	var texting_anim = _get_available_animation(["Texting", "texting"])
 	if texting_anim != "":
 		animation_player.play(texting_anim)
-		print("📱 Player received a text message! Checking phone...")
+		print("📱 Player checking phone...")
 	
-	# Emit signal for UI/game systems to show notification
+	# Wait for animation to play a bit before showing phone screen (2 seconds delay)
+	await get_tree().create_timer(2.0).timeout
+	
+	# Emit signal for UI/game systems to show phone screen
+	print("📱 Showing phone screen...")
 	text_received.emit()
 
 
