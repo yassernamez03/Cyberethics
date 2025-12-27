@@ -66,6 +66,7 @@ var _is_jump_animating: bool = false  # Track if jump animation is playing
 var _game_time: float = 0.0  # Track total game time
 var _texting_triggered: bool = false  # Has the texting event been triggered?
 var _is_texting: bool = false  # Currently playing texting animation?
+var _can_move: bool = true  # Can the player move? (disabled during dialogue)
 const TEXTING_TRIGGER_TIME: float = 20.0  # 3 minutes = 180 seconds
 
 # -----------------------------------------------------------------------------
@@ -75,6 +76,17 @@ func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	_calculate_jump_physics()
 	_setup_animations()
+
+
+# -----------------------------------------------------------------------------
+# PUBLIC METHODS
+# -----------------------------------------------------------------------------
+func set_can_move(can_move: bool) -> void:
+	"""Enable or disable player movement (used during dialogue)."""
+	_can_move = can_move
+	if not can_move:
+		velocity.x = 0
+		velocity.z = 0
 
 
 func _setup_animations() -> void:
@@ -414,6 +426,12 @@ func _trigger_texting_event() -> void:
 # PRIVATE METHODS - Movement
 # -----------------------------------------------------------------------------
 func _handle_movement(delta: float) -> void:
+	# Don't allow movement if disabled (e.g., during dialogue)
+	if not _can_move:
+		velocity.x = lerp(velocity.x, 0.0, deceleration * delta)
+		velocity.z = lerp(velocity.z, 0.0, deceleration * delta)
+		return
+	
 	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	
 	# Get camera's forward and right directions (ignoring Y)
