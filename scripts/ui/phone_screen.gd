@@ -28,20 +28,20 @@ signal decision_made(was_correct: bool)
 var _can_dismiss: bool = false
 var _showing_result: bool = false
 
-# Sarcastic messages for when user falls for phishing
+# Sarcastic messages for when user falls for phishing (Moroccan Darija)
 const FAIL_MESSAGES := [
-	"You just gave your bank info to a scammer!\nNever trust random prize messages.",
-	"Congrats, you just got phished!\nReal banks NEVER ask for card details via SMS.",
-	"Scammers love people like you!\nAlways verify before sharing sensitive info.",
-	"20 million? More like 0 dirhams and a stolen identity!\nIf it sounds too good to be true, it is.",
+	"أُوف! 😬 طاحتي فالفخ ديال فيشينغ.\nما تعطي معلوماتك الشخصية لحتى واحد!",
+	"واخا! 🎣 الهاكرز فرحانين بيك دابا.\nالبنك ما كيطلبش معلوماتك عبر SMS.",
+	"أيايا! 😱 سرقوك قبل ما تفيق.\nإلا كان شي حاجة زوينة بزاف، غالباً فخ.",
+	"راك طحتي! 💀 20 مليون؟ بالعكس 0 درهم و سرقة الهوية!\nفكر قبل ما تكليكي.",
 ]
 
-# Success messages for avoiding phishing
+# Success messages for avoiding phishing (Moroccan Darija)
 const SUCCESS_MESSAGES := [
-	"You successfully avoided the phishing attack!\nNever share your bank details with strangers.",
-	"Smart choice! You recognized the scam!\nReal prizes don't ask for your card number.",
-	"Excellent! You protected yourself!\nAlways be suspicious of unsolicited prize messages.",
-	"Well done! You didn't fall for it!\nScammers hate people who think before clicking.",
+	"برافو! 👏 ما طاحشتيش فالفخ.\nراك ذكي، ما تشارك معلوماتك مع حتى واحد.",
+	"مزيان! 🛡️ عرفتي الفخ من بعيد.\nالجوائز الحقيقية ما كتطلبش رقم الكارطة.",
+	"نيشان! 🔒 حميتي راسك من السرقة.\nديما كون حذر مع الرسائل الغريبة.",
+	"واو! 🌟 ما قدروش عليك الهاكرز.\nخليك هكا، فكر قبل ما تكليكي!",
 ]
 
 
@@ -190,34 +190,56 @@ func _show_result(success: bool) -> void:
 		# Success - avoided phishing
 		result_overlay.add_theme_stylebox_override("panel", _create_success_style())
 		result_icon.text = "🛡️"
-		result_title.text = "GREAT JOB!"
+		result_title.text = "!برافو"
 		result_message.text = SUCCESS_MESSAGES[randi() % SUCCESS_MESSAGES.size()]
 	else:
 		# Failure - fell for phishing
 		result_overlay.add_theme_stylebox_override("panel", _create_fail_style())
-		result_icon.text = "🎣"
-		result_title.text = "OOH GOTCHA!"
+		result_icon.text = "😬"
+		result_title.text = "!أُوف طاحتي"
 		result_message.text = FAIL_MESSAGES[randi() % FAIL_MESSAGES.size()]
 	
 	# Show result overlay with animation
 	result_overlay.visible = true
 	result_overlay.modulate = Color(1, 1, 1, 0)
+	result_overlay.scale = Vector2(0.8, 0.8)
+	result_overlay.pivot_offset = result_overlay.size / 2
 	
 	var tween = create_tween()
-	tween.tween_property(result_overlay, "modulate", Color(1, 1, 1, 1), 0.3)
+	tween.set_parallel(true)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.set_trans(Tween.TRANS_BACK)
+	tween.tween_property(result_overlay, "modulate", Color(1, 1, 1, 1), 0.4)
+	tween.tween_property(result_overlay, "scale", Vector2(1.0, 1.0), 0.4)
 
 
 func _create_success_style() -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.1, 0.5, 0.1, 0.98)
-	style.set_corner_radius_all(20)
+	# Modern gradient-like green with glow effect
+	style.bg_color = Color(0.05, 0.15, 0.1, 0.98)
+	style.border_width_left = 3
+	style.border_width_top = 3
+	style.border_width_right = 3
+	style.border_width_bottom = 3
+	style.border_color = Color(0.2, 1.0, 0.5, 0.9)
+	style.set_corner_radius_all(16)
+	style.shadow_color = Color(0.2, 1.0, 0.5, 0.4)
+	style.shadow_size = 12
 	return style
 
 
 func _create_fail_style() -> StyleBoxFlat:
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color(0.6, 0.1, 0.1, 0.98)
-	style.set_corner_radius_all(20)
+	# Modern gradient-like red with glow effect
+	style.bg_color = Color(0.15, 0.05, 0.05, 0.98)
+	style.border_width_left = 3
+	style.border_width_top = 3
+	style.border_width_right = 3
+	style.border_width_bottom = 3
+	style.border_color = Color(1.0, 0.3, 0.3, 0.9)
+	style.set_corner_radius_all(16)
+	style.shadow_color = Color(1.0, 0.3, 0.3, 0.4)
+	style.shadow_size = 12
 	return style
 
 
