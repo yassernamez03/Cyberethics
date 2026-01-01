@@ -13,13 +13,15 @@ extends Node
 signal input_device_changed(device: InputDevice)
 signal action_just_pressed(action: String)
 signal action_just_released(action: String)
+signal mobile_detected
 
 # -----------------------------------------------------------------------------
 # ENUMS
 # -----------------------------------------------------------------------------
 enum InputDevice {
 	KEYBOARD_MOUSE,
-	GAMEPAD
+	GAMEPAD,
+	TOUCH
 }
 
 # -----------------------------------------------------------------------------
@@ -28,6 +30,11 @@ enum InputDevice {
 var current_device: InputDevice = InputDevice.KEYBOARD_MOUSE
 var mouse_sensitivity: float = 0.002
 var gamepad_sensitivity: float = 2.0
+var touch_sensitivity: float = 0.003
+var is_mobile: bool = false
+
+# Reference to mobile controller (set by levels that instantiate it)
+var mobile_controller: Node = null
 
 # -----------------------------------------------------------------------------
 # PRIVATE VARIABLES
@@ -56,6 +63,7 @@ const ACTIONS := {
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_setup_default_actions()
+	_detect_mobile()
 
 
 func _process(delta: float) -> void:
@@ -106,6 +114,24 @@ func is_action_just(action: String) -> bool:
 	return Input.is_action_just_pressed(action)
 
 
+func is_touch_device() -> bool:
+	"""Returns true if running on a touch-capable device."""
+	return is_mobile
+
+
+func get_touch_camera_delta() -> Vector2:
+	"""Get camera movement delta from mobile controller touch input."""
+	if mobile_controller and mobile_controller.has_method("get_camera_delta"):
+		return mobile_controller.get_camera_delta()
+	return Vector2.ZERO
+
+
+func register_mobile_controller(controller: Node) -> void:
+	"""Register the mobile controller instance for touch input handling."""
+	mobile_controller = controller
+	print("[InputManager] Mobile controller registered")
+
+
 # -----------------------------------------------------------------------------
 # PRIVATE METHODS
 # -----------------------------------------------------------------------------
@@ -140,6 +166,26 @@ func _add_action_if_missing(action_name: String, key: int) -> void:
 		InputMap.action_add_event(action_name, event)
 
 
+func _detect_mobile() -> void:
+	"""Detect if running on a mobile/touch device."""
+	var has_touch := DisplayServer.is_touchscreen_available()
+	var os_name := OS.get_name().to_lower()
+	var is_mobile_os := os_name in ["android", "ios"]
+	
+	# For web builds, check touch capability
+	if os_name == "web":
+		is_mobile = has_touch
+	else:
+		is_mobile = has_touch or is_mobile_os
+	
+	if is_mobile:
+		current_device = InputDevice.TOUCH
+		mobile_detected.emit()
+		print("[InputManager] Mobile/touch device detected")
+	else:
+		print("[InputManager] Desktop device detected")
+
+
 func _update_action_buffer(delta: float) -> void:
 	# Buffer jump and similar actions for responsive gameplay
 	var buffered_actions := ["jump", "attack", "interact"]
@@ -161,6 +207,10 @@ func _update_action_buffer(delta: float) -> void:
 
 func _detect_input_device() -> void:
 	var previous_device := current_device
+	
+	# Don't change from TOUCH if we're on mobile
+	if is_mobile:
+		return
 	
 	# Check for keyboard/mouse input
 	if Input.is_anything_pressed():

@@ -18,10 +18,12 @@ var _current_player: CharacterBody3D
 var _phone_screen: CanvasLayer = null
 var _notification_popup: CanvasLayer = null
 var _score_hud: CanvasLayer = null
+var _mobile_controller: CanvasLayer = null
 
 const PHONE_SCREEN_SCENE := preload("res://scenes/ui/phone_screen.tscn")
 const NOTIFICATION_POPUP_SCENE := preload("res://scenes/ui/notification_popup.tscn")
 const SCORE_HUD_SCENE := preload("res://scenes/ui/score_hud.tscn")
+const MOBILE_CONTROLLER_SCENE := preload("res://scenes/ui/mobile_controller.tscn")
 
 
 func _ready() -> void:
@@ -37,6 +39,9 @@ func _ready() -> void:
 	# Setup notification popup
 	_setup_notification_popup()
 	
+	# Setup mobile controller (only shows on mobile devices)
+	_setup_mobile_controller()
+	
 	if spawn_player_on_ready:
 		await get_tree().physics_frame
 		spawn_player()
@@ -46,7 +51,10 @@ func _ready() -> void:
 	
 	print("===========================================")
 	print("KENNEY INDUSTRIAL CITY LOADED!")
-	print("Controls: WASD = Move, Mouse = Look, Space = Jump")
+	if InputManager.is_touch_device():
+		print("Controls: Virtual Joystick = Move, Touch = Look, Buttons = Jump/Sprint/Interact")
+	else:
+		print("Controls: WASD = Move, Mouse = Look, Space = Jump")
 	print("===========================================")
 
 
@@ -74,11 +82,27 @@ func _setup_notification_popup() -> void:
 	# Show notification after 5 seconds
 	await get_tree().create_timer(5.0).timeout
 	if _notification_popup and is_instance_valid(_notification_popup):
+		var hint_text := "Press [T] to open phone" if not InputManager.is_touch_device() else "Tap phone icon to open"
 		_notification_popup.show_notification(
 			"⚡ NEW MESSAGE",
 			"You have unread messages waiting...",
-			"Press [T] to open phone"
+			hint_text
 		)
+
+
+func _setup_mobile_controller() -> void:
+	"""Setup mobile controller (only visible on mobile/touch devices)."""
+	_mobile_controller = MOBILE_CONTROLLER_SCENE.instantiate()
+	add_child(_mobile_controller)
+	
+	# Register with InputManager for global access
+	if has_node("/root/InputManager"):
+		InputManager.register_mobile_controller(_mobile_controller)
+	
+	if _mobile_controller.visible:
+		print("[KenneyCity] Mobile controller enabled")
+	else:
+		print("[KenneyCity] Mobile controller hidden (desktop mode)")
 
 
 func spawn_player() -> CharacterBody3D:

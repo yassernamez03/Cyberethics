@@ -80,7 +80,9 @@ var _footstep_sprint_interval: float = 0.3  # Faster when sprinting
 # LIFECYCLE METHODS
 # -----------------------------------------------------------------------------
 func _ready() -> void:
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	# Only capture mouse on desktop, not on mobile
+	if not _is_mobile():
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	_calculate_jump_physics()
 	_setup_animations()
 
@@ -316,12 +318,17 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
 		_handle_mouse_look(event.relative)
 	
-	# Toggle mouse capture with Escape
+	# Handle touch camera input (from mobile controller)
+	if event is InputEventScreenDrag:
+		_handle_touch_camera(event)
+	
+	# Toggle mouse capture with Escape (only on desktop)
 	if event.is_action_pressed("pause"):
-		if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
-			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-		else:
-			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+		if not _is_mobile():
+			if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+				Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+			else:
+				Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	
 	# Press T to trigger phone/text message (for testing or manual trigger)
 	if event is InputEventKey and event.pressed and event.keycode == KEY_T:
@@ -499,6 +506,30 @@ func _handle_mouse_look(relative: Vector2) -> void:
 	# Rotate spring arm vertically (pitch)
 	spring_arm.rotate_x(-relative.y * mouse_sensitivity)
 	spring_arm.rotation.x = clamp(spring_arm.rotation.x, deg_to_rad(min_pitch), deg_to_rad(max_pitch))
+
+
+func _handle_touch_camera(event: InputEventScreenDrag) -> void:
+	"""Handle camera look from touch input (mobile)."""
+	# Only process touch input from the right side of the screen (camera area)
+	var screen_width := get_viewport().get_visible_rect().size.x
+	if event.position.x < screen_width * 0.4:
+		return  # Left side is for joystick
+	
+	var touch_sensitivity := mouse_sensitivity * 1.5  # Slightly higher for touch
+	
+	# Rotate camera pivot horizontally
+	camera_pivot.rotate_y(-event.relative.x * touch_sensitivity)
+	
+	# Rotate spring arm vertically (pitch)
+	spring_arm.rotate_x(-event.relative.y * touch_sensitivity)
+	spring_arm.rotation.x = clamp(spring_arm.rotation.x, deg_to_rad(min_pitch), deg_to_rad(max_pitch))
+
+
+func _is_mobile() -> bool:
+	"""Check if running on a mobile device."""
+	if has_node("/root/InputManager"):
+		return InputManager.is_touch_device()
+	return DisplayServer.is_touchscreen_available()
 
 
 # -----------------------------------------------------------------------------
